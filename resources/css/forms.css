@@ -1,0 +1,29 @@
+input.form:not([type=submit]):not([type=button]):not([type=radio]):not([type=checkbox]):not([type=file]) {
+	background: var(--menu-input-bg);
+	border: 1px solid #444;
+}
+
+input[type="color"] {
+	padding: 0 2px!important;
+}
+
+select.form:not([multiple]) {
+	background-color: var(--menu-input-bg);
+	border: 1px solid #444;
+}
+
+
+textarea.form {
+	background-color: var(--menu-input-bg);
+	border: 1px solid #444;
+	min-height: 10px;
+}
+
+
+a.form.secondary { background-color: #3a3a60; }
+a.form.secondary:hover { background: #3a3a60b0; }
+
+/* hide selected color till one is set */
+input[type=color][value='']::-webkit-color-swatch { 
+    background-color: transparent !important; 
+}

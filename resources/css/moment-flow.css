@@ -1,0 +1,244 @@
+.moment-flow {
+	display: flex;
+	flex-direction: column;
+}
+	
+.moment-row {
+	width: 100%;
+	align-items: center;
+	display: flex;
+	flex-direction: column;
+	border-bottom: 1px solid rgba(97, 97, 97, 0.247);
+	padding-bottom: 30px;
+	margin-bottom: 30px;
+}
+
+.moment-flow:last-of-type .moment-row {
+	border-bottom: 0;
+	padding-bottom: 0px;
+	margin-bottom: 0px;
+}
+
+.moment-row span {
+	display: block;
+	color: #fff;
+	margin-top: 10px;
+}
+	
+.moment {
+	background: var(--moment-bg-normal);
+	padding: 24px 12px 12px 12px;
+	min-width: 230px;
+	max-width: 70%;
+	border-radius: 5px;
+	position: relative;
+	margin: auto;
+	outline: 0 solid transparent;
+	transition: 1200ms outline;
+}
+
+.moment:focus-within, .moment:focus {
+	outline: 5px solid var(--moment-bg-light-focus);
+	transition: 100ms outline;
+}
+
+.moment-add-button {
+	background: hsl(246, 25%, 41%);
+	width: 48px;
+	height: 48px;
+	border-radius: 50px;
+	line-height: 48px;
+   text-align: center;
+	margin: auto;
+	font-size: 30px;
+	cursor: pointer;
+	transition: 1200ms opacity, 1200ms outline;
+	outline: 4px solid transparent;
+	user-select: none;
+	border: 0;
+}
+
+.moment-add-button:hover, .moment-add-button:focus {
+	opacity: 0.9;
+	transition: 100ms all;
+	outline: 4px solid hsl(246, 25%, 79%);
+}
+
+.moment-add-button:active {
+	opacity: 0.5;
+}
+
+.moment-header {
+	position: absolute;
+	top: -16px;
+	left: 10px;
+	width: 100%;
+	display: flex;
+	align-items: center;
+}
+
+.moment-header .moment-avatar {
+	background: var(--moment-bg-dark);
+	padding: 3px;
+	border-radius: 4px;
+	width: 42px;
+	height: 42px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	fill: white;
+	margin-top: -6px;
+	margin-right: 4px;
+}
+
+.moment-header .moment-avatar.hidden {
+	visibility: hidden;
+	margin-right: 0;
+	width: 0;
+	padding-left: 2px;
+}
+
+.moment-header .moment-id {
+	display: inline-block;
+    padding: 2px;
+    top: 10px;
+    position: relative;
+    border-radius: 3px;
+    font-weight: 600;
+    color: var(--moment-bg-dark);
+    user-select: none;
+}
+
+.moment-buttons {
+	display: flex;
+	margin-left: 8px;
+	position: relative;
+	top: -2px;
+	flex-grow: 1;
+	justify-content: end;
+}
+
+.moment:not(:focus-within):not(:hover) .moment-buttons {
+	display: none;
+}
+
+.moment-button {
+	background: var(--moment-bg-normal);
+	display: flex;
+	width: 28px;
+	height: 28px;
+	text-align: center;
+	border-radius: 14px;
+	cursor: pointer;
+	align-items: center;
+	justify-content: center;
+	margin-right: 2px;
+	outline: 4px solid transparent;
+	transition: outline 600ms;
+	fill: #fff;
+}
+.moment-button:hover {
+	outline: 4px solid var(--moment-bg-light);
+	transition: outline 100ms;
+	z-index: 1;
+}
+
+.moment-body {
+	font-size: 15px;
+	padding: 4px;
+}
+
+.moment-body:focus {
+	background: #ffffff38;
+	outline: 0;
+}
+
+
+
+.moment-media:empty { display:none; }
+.moment-media:not(:empty) {
+	display: flex;
+	column-gap: 10px;
+	margin-top: 10px;
+}
+.moment-media .moment-image {
+	background: var(--moment-bg-normal);
+	padding: 5px;
+	display: flex;
+	border-radius: 3px;
+	outline: 0 solid transparent;
+	transition: 1200ms outline;
+    position: relative;
+}
+
+.moment-media .moment-image > svg {
+	width: 48px;
+   height: 48px;
+   margin: 5px;
+}
+
+.moment-media .moment-image .buttons { display:none; }
+
+.moment-media .moment-image:focus {
+	outline: 5px solid var(--moment-bg-light-focus);
+	transition: 100ms outline;
+}
+
+.moment-media .moment-image:hover .buttons {
+	display: initial;
+	position: absolute;
+   top: 3px;
+   right: 3px;
+   height: 12px;
+}
+
+.moment-media .moment-image:hover .buttons a svg { fill: white; }
+.moment-media .moment-image:hover .buttons a:hover { opacity: 0.6; cursor: pointer; }
+
+
+/* --- footer --- */
+
+.moment-footer { position: absolute; left: 0; right: 0; }
+.moment-footer .moment-buttons { display: flex; justify-content: end; width: 100%; }
+
+/* --- media --- */
+
+.moment-options:empty { display:none; }
+.moment-options:not(:empty) {
+	display: flex;
+	flex-direction: column;
+	row-gap: 0px;
+	margin-top: 10px;
+}
+
+.moment-options .moment-option {
+	background-color: #999;
+	padding: 5px 10px;
+	min-width: 230px;
+	outline: 0 solid transparent;
+	transition: 1200ms outline;
+	display: flex;
+}
+.moment-options .moment-option:first-of-type { border-radius: 3px 3px 0 0; }
+.moment-options .moment-option:last-of-type { border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; }
+.moment-options .moment-option:not(:first-child):not(:last-child) {	border-radius: 0; }
+
+.moment-options .moment-option div:first-of-type { flex-grow: 1; margin-right: 5px; }
+.moment-options .moment-option div:first-of-type:before {
+	content: '\2023';
+	font-size: 100%;
+	margin-right: 5px;
+}
+
+.moment-options .moment-option:hover .buttons { position: relative;top: 1px; }
+.moment-options .moment-option:not(:hover) .buttons { visibility: hidden; }
+
+.moment-options .moment-option .buttons a svg { fill: white; }
+.moment-options .moment-option .buttons a:hover { opacity: 0.6; cursor: pointer; }
+
+.moment-options .moment-option:focus-within {
+	/* outline: 5px solid var(--moment-bg-light-focus); */
+	background-color: #bbb;
+	transition: 100ms background-color;
+}
+.moment-options .moment-option:focus-within div[contenteditable] { outline:0; }

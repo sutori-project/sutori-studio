@@ -1,0 +1,15 @@
+{
+	"compilerOptions": {
+		"module": "amd",
+		"target": "es2017",
+		"sourceMap": true,
+		"allowJs": true,
+		"outFile": "resources/js/sutori-studio.js"
+	},
+	"include": [
+		"resources/ts/**/*"
+	],
+	"exclude": [
+		"node_modules",
+	]
+}

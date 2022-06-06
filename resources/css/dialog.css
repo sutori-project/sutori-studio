@@ -1,0 +1,72 @@
+#dialog-wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	align-items: center;
+	justify-content: center;
+	overflow: scroll;
+	display: none;
+	z-index: 9999;
+}
+
+#dialog-wrapper.open {
+	background-color: rgb(0 0 0 / 60%);
+	overflow: auto;
+	display: flex;
+}
+
+#dialog-wrapper dialog {
+	padding:0;
+	background-color: var(--main-bg);
+	border: 1px solid var(--menu-highlight-bg);
+	min-width: 300px;
+	min-height: 100px;
+	border-radius: 3px;
+	box-shadow: 1px 3px 6px 1px #0000009c;
+}
+
+#dialog-wrapper dialog[open] {
+	position: absolute;
+}
+
+
+#dialog-wrapper dialog .header {
+	background-color: var(--menu-bg);
+	color: #ccc;
+	padding: 5px 8px;
+	display:flex;
+	border-radius: 3px 3px 0 0;
+	user-select: none;
+}
+
+
+#dialog-wrapper dialog .header > span {
+	flex-grow: 1;
+}
+
+
+#dialog-wrapper dialog .header > .close-but {
+	display: flex;
+	width: 17px;
+	align-items: center;
+	justify-content: center;
+	fill: #fff;
+}
+
+
+#dialog-wrapper dialog .header > .close-but:hover {
+	background: #ccc;
+	cursor: pointer;
+	border-radius:10px;
+	fill: var(--menu-input-bg);
+	position: relative;
+   right: -2px;
+}
+
+
+#dialog-wrapper dialog .body {
+	padding: 10px 12px 5px 12px;
+	color: hsl(246, 25%, 79%);
+}

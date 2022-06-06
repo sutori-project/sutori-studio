@@ -1,0 +1,35 @@
+{
+	"name": "sutori-studio",
+	"version": "0.0.1",
+	"homepage": "https://github.com/kodaloid/sutori-studio",
+	"author": {
+		"name": "Steve Bailey (kodaloid)",
+		"email": "steve@kodaloid.com",
+		"url": "https://kodaloid.com"
+	},
+	"description": "Create beautiful interactive stories using Sutori formatted XML.",
+	"main": "dist/sutori-builder/sutori-studio-win_x64.exe",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/kodaloid/sutori-studio.git"
+	},
+	"license": "MIT",
+	"keywords": [
+		"js",
+		"game"
+	],
+	"bugs": {
+		"url": "https://github.com/kodaloid/sutori-studio/issues"
+	},
+	"scripts": {
+		"build": "tsc -p . && jsmin -o resources/js/sutori-studio.min.js resources/js/sutori-studio.js",
+		"run": "neu run"
+	},
+   "files": [
+		"src",
+		"dist",
+		"resources",
+		"LICENSE",
+		"README.md"
+   ]
+}

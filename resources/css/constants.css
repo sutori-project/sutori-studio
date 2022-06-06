@@ -1,0 +1,42 @@
+:root {
+	--main-bg: hsl(240, 29%, 19%);
+	--scrollbar-color: hsl(246, 23%, 39%);
+
+	--menu-bg: hsl(246, 26%, 21%);
+	--menu-highlight-bg: hsl(246, 23%, 33%);
+	--menu-shadow: hsla(246, 29%, 12%, 0.361);
+	--menu-input-bg: hsl(246, 21%, 26%);
+
+	--sidebar-bg: hsl(246, 26%, 17%);
+	--sidebar-text: hsl(246, 43%, 88%);
+
+	--moment-bg: 168deg, 58%;
+	--moment-bg-normal: hsl(var(--moment-bg), 36%);
+	--moment-bg-dark: hsl(var(--moment-bg), 26%);
+	--moment-bg-light: hsl(var(--moment-bg), 46%);
+	--moment-bg-light-focus: hsla(var(--moment-bg), 46%, .4);
+}
+
+
+
+/* ===== Scrollbar CSS ===== */
+  /* Firefox */
+  * {
+	scrollbar-width: auto;
+	scrollbar-color: var(--scrollbar-color) var(--main-bg);
+ }
+
+ /* Chrome, Edge, and Safari */
+ *::-webkit-scrollbar {
+	width: 16px;
+ }
+
+ *::-webkit-scrollbar-track {
+	background: var(--main-bg);
+ }
+
+ *::-webkit-scrollbar-thumb {
+	background-color: var(--scrollbar-color);
+	border-radius: 10px;
+	border: 3px solid var(--main-bg);
+ }

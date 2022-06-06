@@ -1,0 +1,75 @@
+{
+  "applicationId": "com.kodaloid.sutori-studio",
+  "version": "1.0.0",
+  "defaultMode": "window",
+  "port": 0,
+  "documentRoot": "/resources/",
+  "url": "/",
+  "enableServer": true,
+  "enableNativeAPI": true,
+  "tokenSecurity": "one-time",
+  "logging": {
+    "enabled": true,
+    "writeToLogFile": true
+  },
+  "nativeAllowList": [
+    "app.*",
+    "os.*",
+    "debug.log",
+    "window.getSize",
+    "window.getPosition",
+    "window.move",
+    "filesystem.readFile",
+    "filesystem.writeFile"
+  ],
+  "globalVariables": { },
+  "modes": {
+    "window": {
+      "title": "Sutori Studio",
+      "width": 1200,
+      "height": 730,
+      "minWidth": 800,
+      "minHeight": 480,
+      "fullScreen": false,
+      "alwaysOnTop": false,
+      "icon": "/resources/icons/appIcon.png",
+      "enableInspector": true,
+      "borderless": false,
+      "maximize": false,
+      "hidden": false,
+      "resizable": true,
+      "exitProcessOnClose": false
+    },
+    "browser": {
+      "globalVariables": {
+        "TEST": "Test value browser"
+      },
+      "nativeBlockList": [
+        "filesystem.*"
+      ]
+    },
+    "cloud": {
+      "url": "/resources/#cloud",
+      "nativeAllowList": [
+        "app.*"
+      ]
+    },
+    "chrome": {
+      "width": 1200,
+      "height": 730,
+      "args": "--user-agent=\"Neutralinojs chrome mode\" --disable-features=msWebOOUI,msPdfOOUI",
+      "nativeBlockList": [
+        "filesystem.*",
+        "os.*"
+      ]
+    }
+  },
+  "cli": {
+    "binaryName": "sutori-studio",
+    "resourcesPath": "/resources/",
+    "extensionsPath": "/extensions/",
+    "clientLibrary": "/resources/js/neutralino.js",
+    "binaryVersion": "4.5.0",
+    "clientVersion": "3.4.0"
+  }
+}

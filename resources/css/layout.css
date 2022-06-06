@@ -1,0 +1,48 @@
+body {
+	background-color: var(--main-bg);
+	font-size: 14px;
+}
+
+
+body, p, div, span {
+	font-family: 'Roboto', sans-serif;
+}
+
+
+.app {
+	display: flex;
+   flex-direction: column;
+   height: 100vh;
+}
+
+
+.mid-pane {
+	display: flex;
+	flex: 1 0;
+}
+
+
+.editor-pane {
+	height: calc(100vh - 32px);
+   width: 100%;
+   padding: 50px;
+   overflow-y: auto;
+}
+
+
+.row {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.row.has-gap {
+	column-gap: 10px;
+} 
+
+.column {
+	display: flex;
+	flex-direction: column;
+	flex-basis: 100%;
+	flex: 1;
+}
