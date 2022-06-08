@@ -14,13 +14,13 @@ class MomentFlow {
 	 * @return The html element that was created (has class 'moment-row')
 	 */
 	public AddRow(text: string, id?: string, actor_id?: string, createDocElement: boolean = true) : HTMLElement {
-		const random_id = actor_id ?? ExtraTools.RandomID();
+		const random_id = ExtraTools.IsEmptyString(id) ? ExtraTools.RandomID() : id;
 		if (createDocElement) {
 			const moment = new SutoriMoment;
 			moment.ID = random_id;
 			moment.AddText(App.SelectedCulture, text);
 			moment.Actor = actor_id;
-			App.Document.AddMoment(moment);
+			App.Document.Moments.push(moment);
 		}
 		const actor_hidden = ExtraTools.IsEmptyString(actor_id) ? ' hidden' : '';
 		const xml = `<div class="moment-row">
@@ -130,7 +130,7 @@ class MomentFlow {
 			const moment_index = ExtraTools.GetElementIndex(rowElement);
 			const moment = App.Document.Moments[moment_index];
 			const image = new SutoriElementImage;
-			image.Src = '';
+			image.ResourceID = '';
 			image.ContentCulture = App.SelectedCulture;
 			moment.Elements.push(image);
 		}

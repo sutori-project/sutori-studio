@@ -26,6 +26,10 @@ declare class SutoriDocument {
     /**
      * An array of actors.
      */
+    readonly Resources: Array<SutoriResource>;
+    /**
+     * An array of actors.
+     */
     readonly Actors: Array<SutoriActor>;
     /**
      * An array of moments.
@@ -64,15 +68,11 @@ declare class SutoriDocument {
      */
     private AddMomentAttributes;
     /**
-     * Add an actor instance to this document.
-     * @param actor The actor instance.
+     * Get a resource by it's id.
+     * @param id
+     * @returns Either the found resource or undefined.
      */
-    AddActor(actor: SutoriActor): void;
-    /**
-     * Add a moment instance to this document.
-     * @param moment The moment instance.
-     */
-    AddMoment(moment: SutoriMoment): void;
+    GetResourceByID(id: string): SutoriResource;
 }
 /**
  * The base class for all moment elements.
@@ -171,10 +171,10 @@ declare class SutoriMoment {
     /**
      * Add an image element to this moment.
      * @param culture The culture of the element.
-     * @param src The associated file src.
+     * @param resource The associated resource id.
      * @returns The added element.
      */
-    AddImage(culture: SutoriCulture, src: string): SutoriElementImage;
+    AddImage(culture: SutoriCulture, resource: string): SutoriElementImage;
     /**
      * Add an audio element to this moment.
      * @param culture The culture of the element.
@@ -238,18 +238,38 @@ declare class SutoriMoment {
      * @param culture The SutoriCulture, default is: SutoriCulture.None
      * @returns An array of audio elements.
      */
-    GetAudio(culture?: SutoriCulture): Array<SutoriElementImage>;
+    GetAudio(culture?: SutoriCulture): Array<SutoriElementAudio>;
     /**
      * Get an array of video elements.
      * @param culture The SutoriCulture, default is: SutoriCulture.None
      * @returns An array of video elements.
      */
-    GetVideos(culture?: SutoriCulture): Array<SutoriElementImage>;
+    GetVideos(culture?: SutoriCulture): Array<SutoriElementVideo>;
     /**
     * Try to get an associated actor for this element.
     * @param document The owner document.
     */
     FindAssociatedActor(document: SutoriDocument): SutoriActor;
+}
+/**
+ * The base class for all moment elements.
+ */
+declare abstract class SutoriResource {
+    Attributes: Object;
+    /**
+     * The resource id.
+     */
+    ID?: string;
+    /**
+     * The resource name.
+     */
+    Name?: string;
+    /**
+     * Parse extra attributes when parsing an element.
+     * @param element The source element.
+     * @param exclude An array of keys to exclude.
+     */
+    protected ParseExtraAttributes(element: HTMLElement, exclude?: Array<string>): void;
 }
 /**
  * Various helper tools.
@@ -307,13 +327,9 @@ declare class SutoriElementImage extends SutoriElement {
      */
     For?: string;
     /**
-     * Weather or not to preload this image.
+     * The resource id for the image data.
      */
-    Preload: boolean;
-    /**
-     * The image file uri.
-     */
-    Src: string;
+    ResourceID?: string;
     constructor();
     static Parse(element: HTMLElement): SutoriElementImage;
     /**
@@ -414,6 +430,21 @@ declare class SutoriElementVideo extends SutoriElement {
      * @param document The owner document.
      */
     GetAssociatedActor(document: SutoriDocument): SutoriActor;
+}
+/**
+ * Describes an image resource.
+ */
+declare class SutoriResourceImage extends SutoriResource {
+    /**
+     * The resource id for the image data.
+     */
+    Src?: string;
+    /**
+     * Weather or not to preload this image resource.
+     */
+    Preload: boolean;
+    constructor();
+    static Parse(element: HTMLElement): SutoriResourceImage;
 }
 declare enum SutoriCulture {
     None = "none",

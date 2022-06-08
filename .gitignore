@@ -13,4 +13,5 @@ neutralino.js
 .storage
 .vs
 .vscode
+.tmp
 *.log

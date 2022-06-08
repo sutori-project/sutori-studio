@@ -6,6 +6,7 @@ class SutoriBuilderApp {
 	private _culture: SutoriCulture = SutoriCulture.None;
 	
 	
+	public readonly WebMode: boolean;
 	public readonly MainElement: HTMLElement;
 	public readonly Moments: MomentFlow;
 	public readonly Sidebar: SidebarFlow;
@@ -16,10 +17,11 @@ class SutoriBuilderApp {
 	get Document() : SutoriDocument { return this._loadedDocument; }
 
 
-	constructor() {
+	constructor(webMode: boolean) {
 		if (typeof globalThis.App !== 'undefined')
 			throw new Error("Tried to create more than one instance of SutoriApp");
 
+		this.WebMode = webMode;
 		this.MainElement = document.querySelector('.app');
 		this.Moments = new MomentFlow;
 		this.Sidebar = new SidebarFlow;
@@ -31,10 +33,10 @@ class SutoriBuilderApp {
 	/**
 	 * Initialize the builder app.
 	 */
-	static init() {
+	static init(webMode: boolean = false) {
 		if (typeof globalThis.App == 'undefined') {
 			// create the singleton.
-			const app = globalThis.App = new SutoriBuilderApp();
+			const app = globalThis.App = new SutoriBuilderApp(webMode);
 			
 			// attach ui events.
 			const menu = app.MainElement.querySelector('.main-menu');
@@ -108,7 +110,7 @@ class SutoriBuilderApp {
 			const mediaContainer = rowElement.querySelector('.moment-media');
 			mediaContainer.innerHTML = '';
 			moment.GetImages(App._culture).forEach(image => {
-				App.Moments.AddImage(momentElement, image.Src);
+				App.Moments.AddImage(momentElement, '');
 			});
 		}
 	}
@@ -166,10 +168,16 @@ class SutoriBuilderApp {
 			case 'Delete':
 				const delTarget = e.target as HTMLElement;
 				if (delTarget.classList.contains('group')) {
-					// @ts-ignore
-					let button = await Neutralino.os.showMessageBox('Confirm',
-											"Are you sure you wish to delete this?",
-											'OK_CANCEL', 'QUESTION');
+					let button = '';
+					const message = "Are you sure you wish to delete this?";
+					
+					if (App.WebMode == true) {
+						button = confirm(message) ? 'OK' : 'CANCEL';
+					}
+					else {
+						// @ts-ignore
+						button = await Neutralino.os.showMessageBox('Confirm', message, 'OK_CANCEL', 'QUESTION');
+					}
 					
 					// Delete for editing group names.
 					if (button == 'OK') {
@@ -230,7 +238,7 @@ class SutoriBuilderApp {
 				break;
 			
 			default:
-				console.log(e);
+				//console.log(e);
 				break;
 		}
 	}
@@ -240,13 +248,17 @@ class SutoriBuilderApp {
 	 * Call this to initiate creating a new document.
 	 */
 	public async NewFile() {
-		// @ts-ignore
-		let button = await Neutralino.os.showMessageBox('New Document',
-								 "Are you sure you wish to do this?",
-								 'OK_CANCEL', 'QUESTION');
+		const message = 'Are you sure you wish to do this?';
+		console.log('new clicked', App.WebMode);
 
-		if (button == 'OK') {
-			App.Reset();
+		if (App.WebMode == true) {
+			if (confirm(message) == true) App.Reset();
+		}
+		else {
+			// @ts-ignore
+			let button = await Neutralino.os.showMessageBox('New Document',
+							 message, 'OK_CANCEL', 'QUESTION');
+			if (button == 'OK') App.Reset();
 		}
 	}
 
@@ -258,69 +270,95 @@ class SutoriBuilderApp {
 		const self = App;
 
 		console.log('open clicked');
-		// @ts-ignore
-		let entries = await Neutralino.os.showOpenDialog('Open Sutori Document', {
-			filters: [
-			  {name: 'Sutori XML Document', extensions: ['xml']},
-			  {name: 'All files', extensions: ['*']}
-			]
-		});
 
-		if (entries.length > 0) {
-			const file = entries[0];
-			const dir = file.substring(0, file.lastIndexOf('/')+1);
-
-			// clean up the ui first.
-			self.Reset();
+		if (self.WebMode) {
+			// @ts-ignore
+			if (typeof window.showOpenFilePicker === 'undefined') {
+				alert('Error, your browser does not support the filesystem api.');
+				return;
+			}
+			let fileHandle = '';
+			// @ts-ignore
+			[fileHandle] = await window.showOpenFilePicker() as FileSystemFileHandle;
+			// @ts-ignore
+			const file = await fileHandle.getFile();
+			const contents = await file.text();
+			await self._OpenFileData(contents);
+		}
+		else {
 
 			// @ts-ignore
-			const data = await Neutralino.filesystem.readFile(file);
-			const doc = self._loadedDocument = new SutoriDocument();
-			doc.CustomUriLoader = async function(uri: String) {
-				// we dont want to load dependencies, so just return nothing.
-				return '';
-			};
-			await doc.AddDataFromXml(data);
-
-			// add the includes.
-			doc.Includes.forEach((include: SutoriInclude) => {
-				const includeElement = self.Sidebar.AddInclude(include.Path, false);
+			let entries = await Neutralino.os.showOpenDialog('Open Sutori Document', {
+				filters: [
+				{name: 'Sutori XML Document', extensions: ['xml']},
+				{name: 'All files', extensions: ['*']}
+				]
 			});
+			if (entries.length > 0) {
+				const file = entries[0];
+				// @ts-ignore
+				const data = await Neutralino.filesystem.readFile(file);
+				await self._OpenFileData(data);
+			}
 
-			// add the actors.
-			doc.Actors.forEach((actor: SutoriActor) => {
-				let color = '';
-				if (typeof actor.Attributes['color'] !== "undefined") {
-					color = actor.Attributes['color'];
-				}
-				const actorElement = self.Sidebar.AddActor(actor.Name, color, false);
-			});
-
-			// add the moments.
-			doc.Moments.forEach((moment: SutoriMoment) => {
-				const text = moment.GetText(self._culture);
-				const momentElement = self.Moments.AddRow(text, moment.ID, moment.Actor, false);
-
-				// switch the options.
-				const optionsContainer = momentElement.querySelector('.moment-options');
-				optionsContainer.innerHTML = '';
-				moment.GetOptions(App._culture).forEach(option => {
-					App.Moments.AddOption(momentElement, option.Text);
-				});
-
-				// switch the media.
-				const mediaContainer = momentElement.querySelector('.moment-media');
-				mediaContainer.innerHTML = '';
-				moment.GetImages(App._culture).forEach(image => {
-					App.Moments.AddImage(momentElement, image.Src);
-				});
-				
-			});
-			
-			return;
-
-			console.log("Loaded!", self._loadedDocument);
 		}
+
+		
+	}
+
+
+	private async _OpenFileData(data: any) {
+		const self = App;
+
+		// clean up the ui first.
+		self.Reset();
+		const doc = self._loadedDocument = new SutoriDocument();
+		doc.CustomUriLoader = async function(uri: String) {
+			// we don't want to load dependencies, so just return nothing.
+			return '';
+		};
+		await doc.AddDataFromXml(data);
+
+		// add the includes.
+		doc.Includes.forEach((include: SutoriInclude) => {
+			const includeElement = self.Sidebar.AddInclude(include.Path, false);
+		});
+
+		// add the actors.
+		doc.Actors.forEach((actor: SutoriActor) => {
+			let color = '';
+			if (typeof actor.Attributes['color'] !== "undefined") {
+				color = actor.Attributes['color'];
+			}
+			const actorElement = self.Sidebar.AddActor(actor.Name, actor.ID, color, false);
+		});
+
+		// add the moments.
+		doc.Moments.forEach((moment: SutoriMoment) => {
+			const text = moment.GetText(self._culture);
+			const momentElement = self.Moments.AddRow(text, moment.ID, moment.Actor, false);
+
+			// switch the options.
+			const optionsContainer = momentElement.querySelector('.moment-options');
+			optionsContainer.innerHTML = '';
+			moment.GetOptions(App._culture).forEach(option => {
+				App.Moments.AddOption(momentElement, option.Text);
+			});
+
+			// switch the media.
+			const mediaContainer = momentElement.querySelector('.moment-media');
+			mediaContainer.innerHTML = '';
+			moment.GetImages(App._culture).forEach(image => {
+				App.Moments.AddImage(momentElement, '');
+			});
+		});
+
+		// add the resources.
+		doc.Resources.forEach((resource: SutoriResource) => {
+			if (resource instanceof SutoriResourceImage) {
+				const resourceElement = self.Sidebar.AddImageResource(resource.Name, resource.ID, false);
+			}
+		});
 	}
 
 
@@ -331,31 +369,61 @@ class SutoriBuilderApp {
 		const self = App;
 
 		console.log('save-as clicked');
-		// @ts-ignore
-		let file = await Neutralino.os.showSaveDialog('Save Sutori Document', {
-			title: 'new_document.xml',
-			filters: [
-			  {name: 'Sutori XML Document', extensions: ['xml']},
-			  {name: 'All files', extensions: ['*']}
-			]
-		});
 
-		if (file.length > 0) {
-			// create the xml template.
-			const doc = document.implementation.createDocument(null, 'document');
+		// create the xml template.
+		const doc = document.implementation.createDocument(null, 'document');
+		// serialize the content into the doc.
+		self.SerializeDoc(doc);
+		// serialize the doc into pure xml.
+		const xml = ExtraTools.StringifyXml(doc);
 
-			// serialize the content into the doc.
-			self.SerializeDoc(doc);
+		if (self.WebMode) {
 
-			// serialize the doc into pure xml.
-			const xml = ExtraTools.StringifyXml(doc);
-
-			// save it to the filesystem.
 			// @ts-ignore
-			await Neutralino.filesystem.writeFile(file, xml);
-			console.log("Saved!", file);
-			alert('Saved!');
+			if (typeof window.showSaveFilePicker === 'undefined') {
+				alert('Error, your browser does not support the filesystem api.');
+				return;
+			}
+			const options = {
+				types: [
+					{
+						description: 'Xml Files',
+						accept: { 'application/xml': ['.xml'] },
+					},
+				],
+			};
+			// @ts-ignore
+			const fileHandle = await window.showSaveFilePicker(options) as FileSystemFileHandle;
+			// Create a FileSystemWritableFileStream to write to.
+			// @ts-ignore
+  			const writable = await fileHandle.createWritable();
+			// Write the contents of the file to the stream.
+			await writable.write(xml);
+			// Close the file and write the contents to disk.
+			await writable.close();
+
 		}
+		else {
+
+			// @ts-ignore
+			let file = await Neutralino.os.showSaveDialog('Save Sutori Document', {
+				title: 'new_document.xml',
+				filters: [
+				{name: 'Sutori XML Document', extensions: ['xml']},
+				{name: 'All files', extensions: ['*']}
+				]
+			});
+			if (file.length > 0) {
+				// save it to the filesystem.
+				// @ts-ignore
+				await Neutralino.filesystem.writeFile(file, xml);
+				
+			}
+
+		}
+
+		console.log("Saved!");
+		alert('Saved!');
 	}
 
 
@@ -431,11 +499,10 @@ class SutoriBuilderApp {
 				{
 					const image = element as SutoriElementImage;
 					const ie = momentElement.appendChild(doc.createElement('image')) as HTMLElement;
-					ie.textContent = image.Src;
 					if (image.ContentCulture !== SutoriCulture.None) ie.setAttribute('lang', image.ContentCulture);
+					if (!ExtraTools.IsEmptyString(image.ResourceID)) ie.setAttribute('resource', image.ResourceID);
 					if (!ExtraTools.IsEmptyString(image.Actor)) ie.setAttribute('actor', image.Actor);
 					if (!ExtraTools.IsEmptyString(image.For)) ie.setAttribute('for', image.For);
-					if (image.Preload === true) ie.setAttribute('preload', 'true');
 				}
 			}
 		}

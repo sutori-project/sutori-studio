@@ -34,6 +34,11 @@
 	display: flex;
 }
 
+#sidebar .subheader:not(:first-of-type) {
+	border-top: 1px solid rgba(97, 97, 97, 0.247);
+   padding-top: 30px;
+}
+
 #sidebar .subheader h4 {
 	opacity: 0.5;
 	flex-grow: 1;

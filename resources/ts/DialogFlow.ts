@@ -82,8 +82,8 @@ class DialogFlow {
 
 		const pageHtml = `<div>
 									<div>
-										<label for="tb-src" class="form">Image Source</label>
-										<input id="tb-src" type="text" class="form" value="${image.Src??''}" />  
+										<label for="tb-rid" class="form">Resource ID</label>
+										<input id="tb-rid" type="text" class="form" value="${image.ResourceID??''}" />  
 									</div>
 									<div>
 										<label for="tb-for" class="form">For (eg: background, avatar etc...)</label>
@@ -99,10 +99,6 @@ class DialogFlow {
 									<div>
 										<label class="form">Options</label>
 									</div>
-									<div>
-										<input type="checkbox" class="form" id="cb-preload" ${image.Preload === true ? 'checked' : ''}>
-										<label class="form" for="cb-preload" title="Load the image data before it is shown.">Pre-Load Image</label>
-									</div>
 									<div style="text-align:right; margin-top:15px;">
 										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
@@ -112,12 +108,11 @@ class DialogFlow {
 		this.OkCallback = function() {
 			const dest = document.getElementById('dialog-wrapper');
 			const dialog = dest.querySelector('dialog') as HTMLElement;
-			image.Src = (dialog.querySelector('#tb-src') as HTMLInputElement).value;
+			image.ResourceID = (dialog.querySelector('#tb-rid') as HTMLInputElement).value;
 			image.For = (dialog.querySelector('#tb-for') as HTMLInputElement).value;
 			image.Actor = (dialog.querySelector('#sb-actor') as HTMLSelectElement).value;
-			image.Preload = (dialog.querySelector('#cb-preload') as HTMLInputElement).checked === true;
 			// cast back to null if empty strings are passed.
-			if (image.Src === '') image.Src = null;
+			if (image.ResourceID === '') image.ResourceID = null;
 			if (image.For === '') image.For = null;
 			if (image.Actor === '') image.Actor = null;			
 			this.Close();
@@ -220,6 +215,37 @@ class DialogFlow {
 		};
 
 		this.ShowDialog('Actor Properties', pageHtml);
+	}
+
+
+	ShowImageResourceDialog(imageElement?: HTMLElement) {
+		const index = ExtraTools.GetElementIndex(imageElement);
+		const resource = App.Document.Resources[index] as SutoriResourceImage;
+		const pageHtml = `<div>
+									<div>
+										<label for="tb-id" class="form">Resource ID</label>
+										<input id="tb-id" type="text" class="form" value="${resource.ID}" />  
+									</div>
+									<div>
+										<label for="tb-src" class="form">File Path/URL</label>
+										<input id="tb-src" type="text" class="form" value="${resource.Src??''}" />  
+									</div>
+									<div style="text-align:right; margin-top:15px;">
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
+										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+									</div>
+								</div>`;
+
+		this.OkCallback = function() {
+			const dest = document.getElementById('dialog-wrapper');
+			const dialog = dest.querySelector('dialog') as HTMLElement;
+			resource.ID = (dialog.querySelector('#tb-id') as HTMLInputElement).value;
+			resource.Src = (dialog.querySelector('#tb-src') as HTMLInputElement).value;
+			imageElement.querySelector('.group-id').textContent = '#' + resource.ID;
+			this.Close();
+		};
+
+		this.ShowDialog('Image Resource Properties', pageHtml);
 	}
 
 

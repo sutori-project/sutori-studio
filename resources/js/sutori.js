@@ -62,6 +62,7 @@ class SutoriChallengeEvent {
  */
 class SutoriDocument {
     constructor() {
+        this.Resources = new Array();
         this.Actors = new Array();
         this.Moments = new Array();
         this.Includes = new Array();
@@ -114,6 +115,11 @@ class SutoriDocument {
                 await this.AddDataFromXmlUri(include.Path);
             }
         }
+        xml.querySelectorAll('resources > *').forEach((resource_e) => {
+            if (resource_e.tagName == 'image') {
+                self.Resources.push(SutoriResourceImage.Parse(resource_e));
+            }
+        });
         xml.querySelectorAll('actors actor').forEach((actor_e) => {
             self.Actors.push(SutoriActor.Parse(actor_e));
         });
@@ -185,18 +191,12 @@ class SutoriDocument {
         }
     }
     /**
-     * Add an actor instance to this document.
-     * @param actor The actor instance.
+     * Get a resource by it's id.
+     * @param id
+     * @returns Either the found resource or undefined.
      */
-    AddActor(actor) {
-        this.Actors.push(actor);
-    }
-    /**
-     * Add a moment instance to this document.
-     * @param moment The moment instance.
-     */
-    AddMoment(moment) {
-        this.Moments.push(moment);
+    GetResourceByID(id) {
+        return this.Resources.find(res => res.ID == id);
     }
 }
 /**
@@ -327,13 +327,13 @@ class SutoriMoment {
     /**
      * Add an image element to this moment.
      * @param culture The culture of the element.
-     * @param src The associated file src.
+     * @param resource The associated resource id.
      * @returns The added element.
      */
-    AddImage(culture, src) {
+    AddImage(culture, resource) {
         const element = new SutoriElementImage();
         element.ContentCulture = culture;
-        element.Src = src;
+        element.ResourceID = resource;
         this.Elements.push(element);
         return element;
     }
@@ -465,6 +465,26 @@ class SutoriMoment {
     }
 }
 /**
+ * The base class for all moment elements.
+ */
+class SutoriResource {
+    /**
+     * Parse extra attributes when parsing an element.
+     * @param element The source element.
+     * @param exclude An array of keys to exclude.
+     */
+    ParseExtraAttributes(element, exclude) {
+        const self = this;
+        self.Attributes = new Object;
+        for (let i = 0; i < element.attributes.length; i++) {
+            const attr = element.attributes[i];
+            if (typeof exclude !== 'undefined' && exclude.indexOf(attr.name) > -1)
+                continue;
+            self.Attributes[attr.name] = attr.value;
+        }
+    }
+}
+/**
  * Various helper tools.
  */
 class SutoriTools {
@@ -547,10 +567,12 @@ class SutoriElementImage extends SutoriElement {
     }
     static Parse(element) {
         const result = new SutoriElementImage();
-        result.Src = element.textContent;
-        result.ParseExtraAttributes(element, ['actor', 'purpose', 'lang', 'preload']);
+        result.ParseExtraAttributes(element, ['actor', 'resource', 'purpose', 'lang']);
         if (element.hasAttribute('actor')) {
             result.Actor = element.attributes['actor'].textContent;
+        }
+        if (element.hasAttribute('resource')) {
+            result.ResourceID = element.attributes['resource'].textContent;
         }
         if (element.hasAttribute('for')) {
             result.For = element.attributes['for'].textContent;
@@ -558,17 +580,6 @@ class SutoriElementImage extends SutoriElement {
         if (element.hasAttribute('lang')) {
             const lang = element.attributes['lang'].textContent;
             result.ContentCulture = SutoriTools.ParseCulture(lang);
-        }
-        if (element.hasAttribute('preload')) {
-            const preload = SutoriTools.ParseBool(element.attributes['preload'].textContent);
-            result.Preload = preload;
-            if (preload === true) {
-                const img = new Image();
-                img.src == result.Src;
-            }
-        }
-        else {
-            result.Preload = false;
         }
         return result;
     }
@@ -720,6 +731,31 @@ class SutoriElementVideo extends SutoriElement {
             return null;
         // find the actor.
         return document.Actors.find(t => t.ID == this.Actor);
+    }
+}
+/**
+ * Describes an image resource.
+ */
+class SutoriResourceImage extends SutoriResource {
+    constructor() {
+        super();
+        this.ID = null;
+        this.Name = 'Untitled';
+        this.Attributes = new Object();
+    }
+    static Parse(element) {
+        const result = new SutoriResourceImage();
+        result.ParseExtraAttributes(element, ['id', 'name', 'src']);
+        if (element.hasAttribute('id')) {
+            result.ID = element.attributes['id'].textContent;
+        }
+        if (element.hasAttribute('name')) {
+            result.Name = element.attributes['name'].textContent;
+        }
+        if (element.hasAttribute('resource')) {
+            result.Src = element.attributes['src'].textContent;
+        }
+        return result;
     }
 }
 var SutoriCulture;

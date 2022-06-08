@@ -1,7 +1,9 @@
-# sutori-studio
+# Sutori Studio
 
-Create beautiful interactive stories using Sutori formatted XML.
+An IDE for creating beautiful interactive stories powered by [sutori-game-js](https://github.com/kodaloid/sutori-game-js).
+
+
 
 ## License
 
-not yet decided.
+This project uses the MIT license.
