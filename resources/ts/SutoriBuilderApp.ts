@@ -376,6 +376,7 @@ class SutoriBuilderApp {
 		self.SerializeDoc(doc);
 		// serialize the doc into pure xml.
 		const xml = ExtraTools.StringifyXml(doc);
+		let saved = false;
 
 		if (self.WebMode) {
 
@@ -401,6 +402,7 @@ class SutoriBuilderApp {
 			await writable.write(xml);
 			// Close the file and write the contents to disk.
 			await writable.close();
+			saved = true;
 
 		}
 		else {
@@ -408,22 +410,25 @@ class SutoriBuilderApp {
 			// @ts-ignore
 			let file = await Neutralino.os.showSaveDialog('Save Sutori Document', {
 				title: 'new_document.xml',
+				defaultPath: 'untitled.xml',
 				filters: [
-				{name: 'Sutori XML Document', extensions: ['xml']},
-				{name: 'All files', extensions: ['*']}
+					{name: 'Sutori XML Document', extensions: ['xml']},
+					{name: 'All files', extensions: ['*']}
 				]
 			});
 			if (file.length > 0) {
 				// save it to the filesystem.
 				// @ts-ignore
 				await Neutralino.filesystem.writeFile(file, xml);
-				
+				saved = true;
 			}
 
 		}
 
-		console.log("Saved!");
-		alert('Saved!');
+		if (saved == true) {
+			console.log("Saved!");
+			alert('Saved!');
+		}
 	}
 
 

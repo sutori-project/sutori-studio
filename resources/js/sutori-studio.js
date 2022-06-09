@@ -31,8 +31,8 @@ class DialogFlow {
 										<input id="tb-callback" type="text" class="form" value="${(_b = option.SolverCallback) !== null && _b !== void 0 ? _b : ''}" />  
 									</div>
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
         this.OkCallback = function () {
@@ -49,10 +49,10 @@ class DialogFlow {
                 option.SolverCallback = null;
             this.Close();
         };
-        this.ShowDialog('Option Properties', pageHtml);
+        this.ShowDialog('Option Properties', 'option-dialog', pageHtml);
     }
     ShowImagePropertiesDialog(buttonElement) {
-        var _a, _b;
+        var _a;
         const imageElement = buttonElement.closest('.moment-image');
         const momentElement = imageElement.closest('.moment-row');
         const moment_index = ExtraTools.GetElementIndex(momentElement);
@@ -60,8 +60,15 @@ class DialogFlow {
         const image_index = ExtraTools.GetElementIndex(imageElement);
         const images = moment.GetImages(App.SelectedCulture);
         const image = images[image_index];
-        let actor_html = '';
+        let actor_html = '', resource_html = '';
         let found_selected = false;
+        App.Document.Resources.forEach((res) => {
+            const disabled = ExtraTools.IsEmptyString(res.ID) ? ' disabled' : '';
+            const selected = (ExtraTools.IsEmptyString(image.Actor) === false) &&
+                (res.ID === image.ResourceID)
+                ? ' selected' : '';
+            resource_html += `<option value="${res.ID}"${disabled + selected}>${res.Name}</option>`;
+        });
         App.Document.Actors.forEach((actor) => {
             const disabled = ExtraTools.IsEmptyString(actor.ID) ? ' disabled' : '';
             const selected = (found_selected === false) &&
@@ -73,11 +80,14 @@ class DialogFlow {
         const pageHtml = `<div>
 									<div>
 										<label for="tb-rid" class="form">Resource ID</label>
-										<input id="tb-rid" type="text" class="form" value="${(_a = image.ResourceID) !== null && _a !== void 0 ? _a : ''}" />  
+										<select id="sb-rid" class="form">
+											<option value="">-- Inherit --</option>
+											${resource_html}
+										</select>
 									</div>
 									<div>
 										<label for="tb-for" class="form">For (eg: background, avatar etc...)</label>
-										<input id="tb-for" type="text" class="form" value="${(_b = image.For) !== null && _b !== void 0 ? _b : ''}" />  
+										<input id="tb-for" type="text" class="form" value="${(_a = image.For) !== null && _a !== void 0 ? _a : ''}" />  
 									</div>
 									<div>
 										<label for="sb-actor" class="form">Actor</label>
@@ -90,8 +100,8 @@ class DialogFlow {
 										<label class="form">Options</label>
 									</div>
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
         this.OkCallback = function () {
@@ -109,7 +119,7 @@ class DialogFlow {
                 image.Actor = null;
             this.Close();
         };
-        this.ShowDialog('Image Properties', pageHtml);
+        this.ShowDialog('Image Properties', 'image-properties-dialog', pageHtml);
     }
     ShowIncludeDialog(includeElement) {
         const index = ExtraTools.GetElementIndex(includeElement);
@@ -117,7 +127,10 @@ class DialogFlow {
         const pageHtml = `<div>
 									<div>
 										<label for="tb-path" class="form">Include Path</label>
-										<input id="tb-path" type="text" class="form" value="${include.Path}" />  
+										<div class="input-with-button">
+											<input id="tb-path" type="text" class="form" value="${include.Path}" />  
+											<a id="button-browse" class="form secondary" onclick="App.Dialogs.FileXmlBrowse('#tb-path');">...</a>
+										</div>
 									</div>
 									<div>
 										<label class="form">Options</label>
@@ -127,8 +140,8 @@ class DialogFlow {
 										<label class="form" for="cb-after" title="Load this include after the document has loaded.">Load After</label>
 									</div>
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
         this.OkCallback = function () {
@@ -139,7 +152,7 @@ class DialogFlow {
             includeElement.querySelector('.group-name').textContent = include.Path;
             this.Close();
         };
-        this.ShowDialog('Include Properties', pageHtml);
+        this.ShowDialog('Include Properties', 'include-dialog', pageHtml);
     }
     ShowActorDialog(actorElement) {
         var _a;
@@ -172,8 +185,8 @@ class DialogFlow {
 										</div>
 									</div>
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
         this.OkCallback = function () {
@@ -196,24 +209,43 @@ class DialogFlow {
             actorElement.querySelector('.group-id').textContent = '#' + actor.ID;
             this.Close();
         };
-        this.ShowDialog('Actor Properties', pageHtml);
+        this.ShowDialog('Actor Properties', 'actor-dialog', pageHtml);
     }
     ShowImageResourceDialog(imageElement) {
-        var _a;
+        var _a, _b;
         const index = ExtraTools.GetElementIndex(imageElement);
         const resource = App.Document.Resources[index];
         const pageHtml = `<div>
-									<div>
-										<label for="tb-id" class="form">Resource ID</label>
-										<input id="tb-id" type="text" class="form" value="${resource.ID}" />  
+									<div class="row has-gap">
+										<div class="column">
+											<figure>
+												<img id="img-preview" src="${(_a = resource.Src) !== null && _a !== void 0 ? _a : ''}" />
+											</figure>
+										</div>
+										<div class="column">
+
+											<div>
+												<label for="tb-id" class="form">Resource ID</label>
+												<input id="tb-id" type="text" class="form" value="${resource.ID}" />  
+											</div>
+											<div>
+												<label for="tb-name" class="form">Resource Name</label>
+												<input id="tb-name" type="text" class="form" value="${resource.Name}" />  
+											</div>
+											<div>
+												<label for="tb-src" class="form">File Path/URL</label>
+												<div class="input-with-button">
+													<input id="tb-src" type="text" class="form" value="${(_b = resource.Src) !== null && _b !== void 0 ? _b : ''}" />  
+													<a id="button-browse" class="form secondary" onclick="App.Dialogs.ImageBrowse('#tb-src', '#tb-name', '#img-preview');">...</a>
+												</div>
+											</div>
+
+										</div>
 									</div>
-									<div>
-										<label for="tb-src" class="form">File Path/URL</label>
-										<input id="tb-src" type="text" class="form" value="${(_a = resource.Src) !== null && _a !== void 0 ? _a : ''}" />  
-									</div>
+										
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
         this.OkCallback = function () {
@@ -221,10 +253,12 @@ class DialogFlow {
             const dialog = dest.querySelector('dialog');
             resource.ID = dialog.querySelector('#tb-id').value;
             resource.Src = dialog.querySelector('#tb-src').value;
+            resource.Name = dialog.querySelector('#tb-name').value;
             imageElement.querySelector('.group-id').textContent = '#' + resource.ID;
+            imageElement.querySelector('.group-name').textContent = resource.Name;
             this.Close();
         };
-        this.ShowDialog('Image Resource Properties', pageHtml);
+        this.ShowDialog('Image Resource Properties', 'resource-dialog', pageHtml);
     }
     ShowMomentDialog(buttonElement) {
         var _a, _b;
@@ -288,8 +322,8 @@ class DialogFlow {
 
 									
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
         this.OkCallback = function () {
@@ -311,16 +345,27 @@ class DialogFlow {
             }
             this.Close();
         };
-        this.ShowDialog('Moment Properties', pageHtml);
+        this.ShowDialog('Moment Properties', 'moment-dialog', pageHtml);
     }
-    ShowDialog(header, html, draggable = false) {
+    /**
+     * Call this to show a in-app dialog.
+     * @param header The header text.
+     * @param dialog_class The class added to the dialog element that appears.
+     * @param html The html that appears on the dialog.
+     * @param draggable Weather or not to make the dialog draggable.
+     */
+    ShowDialog(header, dialog_class, html, draggable = true) {
         const dest = document.getElementById('dialog-wrapper');
-        dest.innerHTML = `<dialog>
+        if (draggable)
+            dest.classList.add('draggable');
+        else
+            dest.classList.remove('draggable');
+        dest.innerHTML = `<div><dialog class="${dialog_class}">
 			<div class="header"><span>${header}</span><a class="close-but" onclick="App.Dialogs.Close();"><svg width="12" height="12"><use xlink:href="#close"/></svg></a></div>
 			<div class="body">
 				${html}
 			</div>
-		</dialog>`;
+		</dialog></div>`;
         const dialog = dest.querySelector('dialog');
         if (draggable === true)
             ExtraTools.MakeDraggable(dialog);
@@ -344,6 +389,112 @@ class DialogFlow {
         const dialog = dest.querySelector('dialog');
         dialog.setAttribute('open', null);
         this.OkCallback = null;
+    }
+    /**
+     * Show a browse dialog to pick a file.
+     * @param srcTargetSelector The selector for the input that will receive the chosen filename.
+     */
+    async FileXmlBrowse(srcTargetSelector) {
+        const srcTarget = document.querySelector(srcTargetSelector);
+        if (App.WebMode) {
+            // @ts-ignore
+            if (typeof window.showOpenFilePicker === 'undefined') {
+                alert('Error, your browser does not support the filesystem api.');
+                return;
+            }
+            let fileHandle = '';
+            const opts = {
+                types: [
+                    {
+                        description: 'Images',
+                        accept: { 'text/xml': ['.xml'] }
+                    },
+                ],
+                excludeAcceptAllOption: true,
+                multiple: false
+            };
+            // @ts-ignore
+            [fileHandle] = await window.showOpenFilePicker(opts);
+            // @ts-ignore
+            const file = await fileHandle.getFile();
+            srcTarget.value = file.name;
+        }
+        else {
+            // @ts-ignore
+            let entries = await Neutralino.os.showOpenDialog('Select File', {
+                filters: [
+                    { name: 'Xml File(s)', extensions: ['xml'] },
+                    { name: 'All files', extensions: ['*'] }
+                ]
+            });
+            if (entries.length > 0) {
+                srcTarget.value = entries[0].split('\\').pop().split('/').pop();
+            }
+        }
+    }
+    /**
+     * Show a browse dialog to pick an image file.
+     * @param srcTargetSelector The selector for the input that will receive the chosen filename.
+     * @param nameTargetSelector The selector for the input that will receive the name of thw chosen file.
+     * @param previewTargetSelector The selector for the image to display a preview.
+     */
+    async ImageBrowse(srcTargetSelector, nameTargetSelector, previewTargetSelector) {
+        const srcTarget = document.querySelector(srcTargetSelector);
+        const nameTarget = document.querySelector(nameTargetSelector);
+        const previewTarget = document.querySelector(previewTargetSelector);
+        if (App.WebMode) {
+            // @ts-ignore
+            if (typeof window.showOpenFilePicker === 'undefined') {
+                alert('Error, your browser does not support the filesystem api.');
+                return;
+            }
+            let fileHandle = '';
+            const opts = {
+                types: [
+                    {
+                        description: 'Images',
+                        accept: { 'image/*': ['.png', '.gif', '.jpeg', '.jpg', '.webp'] }
+                    },
+                ],
+                excludeAcceptAllOption: true,
+                multiple: false
+            };
+            // @ts-ignore
+            [fileHandle] = await window.showOpenFilePicker(opts);
+            // @ts-ignore
+            const file = await fileHandle.getFile();
+            const fr = new FileReader();
+            fr.readAsDataURL(file);
+            fr.onloadend = function () {
+                srcTarget.value = fr.result;
+                nameTarget.value = file.name;
+                previewTarget.src = srcTarget.value;
+            };
+        }
+        else {
+            // @ts-ignore
+            let entries = await Neutralino.os.showOpenDialog('Load Image', {
+                filters: [
+                    { name: 'Image File(s)', extensions: ['jpg', 'jpeg', 'png', 'webp'] },
+                    { name: 'All files', extensions: ['*'] }
+                ]
+            });
+            if (entries.length > 0) {
+                console.log(entries);
+                // @ts-ignore
+                const file = await Neutralino.filesystem.readBinaryFile(entries[0]);
+                const blob = new Blob([new Uint8Array(file, 0, file.length)]);
+                const fr = new FileReader();
+                fr.readAsDataURL(blob);
+                fr.onloadend = function () {
+                    srcTarget.value = fr.result;
+                    nameTarget.value = entries[0].split('\\').pop().split('/').pop();
+                    previewTarget.src = srcTarget.value;
+                };
+                //srcTarget.value = entries[0];
+                //previewTarget.src = entries[0];
+            }
+        }
     }
 }
 class ExtraTools {
@@ -398,6 +549,7 @@ class ExtraTools {
             e = e || window.event;
             e.preventDefault();
             // get the mouse cursor position at startup:
+            console.log(e);
             pos3 = e.clientX;
             pos4 = e.clientY;
             document.onmouseup = closeDragElement;
@@ -421,6 +573,8 @@ class ExtraTools {
             document.onmouseup = null;
             document.onmousemove = null;
         }
+    }
+    static ImageToUri(imageData) {
     }
     static GetSolverByValue(value) {
         const values = Object.values(SutoriSolver);
@@ -1077,6 +1231,7 @@ class SutoriBuilderApp {
         self.SerializeDoc(doc);
         // serialize the doc into pure xml.
         const xml = ExtraTools.StringifyXml(doc);
+        let saved = false;
         if (self.WebMode) {
             // @ts-ignore
             if (typeof window.showSaveFilePicker === 'undefined') {
@@ -1100,11 +1255,13 @@ class SutoriBuilderApp {
             await writable.write(xml);
             // Close the file and write the contents to disk.
             await writable.close();
+            saved = true;
         }
         else {
             // @ts-ignore
             let file = await Neutralino.os.showSaveDialog('Save Sutori Document', {
                 title: 'new_document.xml',
+                defaultPath: 'untitled.xml',
                 filters: [
                     { name: 'Sutori XML Document', extensions: ['xml'] },
                     { name: 'All files', extensions: ['*'] }
@@ -1114,10 +1271,13 @@ class SutoriBuilderApp {
                 // save it to the filesystem.
                 // @ts-ignore
                 await Neutralino.filesystem.writeFile(file, xml);
+                saved = true;
             }
         }
-        console.log("Saved!");
-        alert('Saved!');
+        if (saved == true) {
+            console.log("Saved!");
+            alert('Saved!');
+        }
     }
     /**
      * Serialize the loaded document into an XmlDocument.

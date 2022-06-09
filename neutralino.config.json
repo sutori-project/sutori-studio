@@ -20,6 +20,7 @@
     "window.getPosition",
     "window.move",
     "filesystem.readFile",
+    "filesystem.readBinaryFile",
     "filesystem.writeFile"
   ],
   "globalVariables": { },

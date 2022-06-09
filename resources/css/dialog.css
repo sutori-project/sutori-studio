@@ -17,6 +17,12 @@
 	display: flex;
 }
 
+#dialog-wrapper.open > div {
+	position: relative;
+	width: 100vw;
+	height: 100vh;
+}
+
 #dialog-wrapper dialog {
 	padding:0;
 	background-color: var(--main-bg);
@@ -25,6 +31,10 @@
 	min-height: 100px;
 	border-radius: 3px;
 	box-shadow: 1px 3px 6px 1px #0000009c;
+	margin: 0;
+	top: 50%;
+   left: 50%;
+   transform: translate(-50%, -50%);
 }
 
 #dialog-wrapper dialog[open] {
@@ -69,4 +79,21 @@
 #dialog-wrapper dialog .body {
 	padding: 10px 12px 5px 12px;
 	color: hsl(246, 25%, 79%);
+}
+
+
+#dialog-wrapper dialog.resource-dialog figure {
+	width: 350px;
+	height: 350px;
+	background: #0003;
+	border-radius: 3px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 5px;
+}
+
+#dialog-wrapper dialog.resource-dialog figure img {
+	max-width: 100%;
+	max-height: 100%;
 }

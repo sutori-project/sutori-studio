@@ -1,7 +1,7 @@
 #sidebar {
 	background-color: var(--sidebar-bg);
-	max-width: 280px;
-   min-width: 280px;
+	max-width: 325px;
+   min-width: 325px;
 	padding: 25px 25px 10px 25px;
 	color: var(--sidebar-text);
 	overflow: auto;
@@ -68,6 +68,9 @@
 	display: inline-block;
 	min-width: 10px;
 	padding: 3px 5px;	
+	max-width: 160px;
+	overflow: hidden;
+	overflow-wrap: break-word;
 }
 
 #sidebar span[contenteditable] + small {

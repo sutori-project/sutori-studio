@@ -37,8 +37,8 @@ class DialogFlow {
 										<input id="tb-callback" type="text" class="form" value="${option.SolverCallback??''}" />  
 									</div>
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
 
@@ -55,7 +55,7 @@ class DialogFlow {
 			this.Close();
 		};
 
-		this.ShowDialog('Option Properties', pageHtml);
+		this.ShowDialog('Option Properties', 'option-dialog', pageHtml);
 	}
 
 
@@ -68,8 +68,16 @@ class DialogFlow {
 		const images = moment.GetImages(App.SelectedCulture);
 		const image = images[image_index];
 
-		let actor_html = '';
+		let actor_html = '', resource_html = '';
 		let found_selected = false;
+
+		App.Document.Resources.forEach((res: SutoriResource) => {
+			const disabled = ExtraTools.IsEmptyString(res.ID) ? ' disabled' : '';
+			const selected = (ExtraTools.IsEmptyString(image.Actor) === false) && 
+								  (res.ID === image.ResourceID)
+								  ? ' selected' : '';
+			resource_html += `<option value="${res.ID}"${disabled+selected}>${res.Name}</option>`;
+		});
 
 		App.Document.Actors.forEach((actor: SutoriActor) => {
 			const disabled = ExtraTools.IsEmptyString(actor.ID) ? ' disabled' : '';
@@ -83,7 +91,10 @@ class DialogFlow {
 		const pageHtml = `<div>
 									<div>
 										<label for="tb-rid" class="form">Resource ID</label>
-										<input id="tb-rid" type="text" class="form" value="${image.ResourceID??''}" />  
+										<select id="sb-rid" class="form">
+											<option value="">-- Inherit --</option>
+											${resource_html}
+										</select>
 									</div>
 									<div>
 										<label for="tb-for" class="form">For (eg: background, avatar etc...)</label>
@@ -100,8 +111,8 @@ class DialogFlow {
 										<label class="form">Options</label>
 									</div>
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
 
@@ -118,7 +129,7 @@ class DialogFlow {
 			this.Close();
 		};
 
-		this.ShowDialog('Image Properties', pageHtml);
+		this.ShowDialog('Image Properties', 'image-properties-dialog', pageHtml);
 	}
 
 
@@ -128,7 +139,10 @@ class DialogFlow {
 		const pageHtml = `<div>
 									<div>
 										<label for="tb-path" class="form">Include Path</label>
-										<input id="tb-path" type="text" class="form" value="${include.Path}" />  
+										<div class="input-with-button">
+											<input id="tb-path" type="text" class="form" value="${include.Path}" />  
+											<a id="button-browse" class="form secondary" onclick="App.Dialogs.FileXmlBrowse('#tb-path');">...</a>
+										</div>
 									</div>
 									<div>
 										<label class="form">Options</label>
@@ -138,8 +152,8 @@ class DialogFlow {
 										<label class="form" for="cb-after" title="Load this include after the document has loaded.">Load After</label>
 									</div>
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
 
@@ -152,7 +166,7 @@ class DialogFlow {
 			this.Close();
 		};
 
-		this.ShowDialog('Include Properties', pageHtml);
+		this.ShowDialog('Include Properties', 'include-dialog', pageHtml);
 	}
 
 
@@ -187,8 +201,8 @@ class DialogFlow {
 										</div>
 									</div>
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
 
@@ -214,7 +228,7 @@ class DialogFlow {
 			this.Close();
 		};
 
-		this.ShowDialog('Actor Properties', pageHtml);
+		this.ShowDialog('Actor Properties', 'actor-dialog', pageHtml);
 	}
 
 
@@ -222,17 +236,36 @@ class DialogFlow {
 		const index = ExtraTools.GetElementIndex(imageElement);
 		const resource = App.Document.Resources[index] as SutoriResourceImage;
 		const pageHtml = `<div>
-									<div>
-										<label for="tb-id" class="form">Resource ID</label>
-										<input id="tb-id" type="text" class="form" value="${resource.ID}" />  
+									<div class="row has-gap">
+										<div class="column">
+											<figure>
+												<img id="img-preview" src="${resource.Src??''}" />
+											</figure>
+										</div>
+										<div class="column">
+
+											<div>
+												<label for="tb-id" class="form">Resource ID</label>
+												<input id="tb-id" type="text" class="form" value="${resource.ID}" />  
+											</div>
+											<div>
+												<label for="tb-name" class="form">Resource Name</label>
+												<input id="tb-name" type="text" class="form" value="${resource.Name}" />  
+											</div>
+											<div>
+												<label for="tb-src" class="form">File Path/URL</label>
+												<div class="input-with-button">
+													<input id="tb-src" type="text" class="form" value="${resource.Src??''}" />  
+													<a id="button-browse" class="form secondary" onclick="App.Dialogs.ImageBrowse('#tb-src', '#tb-name', '#img-preview');">...</a>
+												</div>
+											</div>
+
+										</div>
 									</div>
-									<div>
-										<label for="tb-src" class="form">File Path/URL</label>
-										<input id="tb-src" type="text" class="form" value="${resource.Src??''}" />  
-									</div>
+										
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
 
@@ -241,11 +274,13 @@ class DialogFlow {
 			const dialog = dest.querySelector('dialog') as HTMLElement;
 			resource.ID = (dialog.querySelector('#tb-id') as HTMLInputElement).value;
 			resource.Src = (dialog.querySelector('#tb-src') as HTMLInputElement).value;
+			resource.Name = (dialog.querySelector('#tb-name') as HTMLInputElement).value;
 			imageElement.querySelector('.group-id').textContent = '#' + resource.ID;
+			imageElement.querySelector('.group-name').textContent = resource.Name;
 			this.Close();
 		};
 
-		this.ShowDialog('Image Resource Properties', pageHtml);
+		this.ShowDialog('Image Resource Properties', 'resource-dialog', pageHtml);
 	}
 
 
@@ -312,8 +347,8 @@ class DialogFlow {
 
 									
 									<div style="text-align:right; margin-top:15px;">
-										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
 		
@@ -339,18 +374,27 @@ class DialogFlow {
 			this.Close();
 		};
 
-		this.ShowDialog('Moment Properties', pageHtml);
+		this.ShowDialog('Moment Properties', 'moment-dialog', pageHtml);
 	}
 
 
-	ShowDialog(header: string, html: string, draggable: boolean = false) {
+	/**
+	 * Call this to show a in-app dialog.
+	 * @param header The header text.
+	 * @param dialog_class The class added to the dialog element that appears.
+	 * @param html The html that appears on the dialog.
+	 * @param draggable Weather or not to make the dialog draggable.
+	 */
+	ShowDialog(header: string, dialog_class: string, html: string, draggable: boolean = true) {
 		const dest = document.getElementById('dialog-wrapper');
-		dest.innerHTML = `<dialog>
+		if (draggable) dest.classList.add('draggable');
+		else dest.classList.remove('draggable');
+		dest.innerHTML = `<div><dialog class="${dialog_class}">
 			<div class="header"><span>${header}</span><a class="close-but" onclick="App.Dialogs.Close();"><svg width="12" height="12"><use xlink:href="#close"/></svg></a></div>
 			<div class="body">
 				${html}
 			</div>
-		</dialog>`;
+		</dialog></div>`;
 		const dialog = dest.querySelector('dialog') as HTMLElement;
 		if (draggable === true) ExtraTools.MakeDraggable(dialog);
 		dest.classList.add('open');
@@ -379,4 +423,119 @@ class DialogFlow {
 		this.OkCallback = null;
 	}
 
+
+	/**
+	 * Show a browse dialog to pick a file.
+	 * @param srcTargetSelector The selector for the input that will receive the chosen filename.
+	 */
+	async FileXmlBrowse(srcTargetSelector) {
+		const srcTarget = document.querySelector(srcTargetSelector);
+
+		if (App.WebMode) {
+			// @ts-ignore
+			if (typeof window.showOpenFilePicker === 'undefined') {
+				alert('Error, your browser does not support the filesystem api.');
+				return;
+			}
+			let fileHandle = '';
+			const opts = {
+				types: [
+				  {
+					 description: 'Images',
+					 accept: { 'text/xml': ['.xml'] }
+				  },
+				],
+				excludeAcceptAllOption: true,
+				multiple: false
+			 };
+			// @ts-ignore
+			[fileHandle] = await window.showOpenFilePicker(opts) as FileSystemFileHandle;
+			// @ts-ignore
+			const file = await fileHandle.getFile();
+			srcTarget.value = file.name;
+		}
+		else {
+
+			// @ts-ignore
+			let entries = await Neutralino.os.showOpenDialog('Select File', {
+				filters: [
+					{name: 'Xml File(s)', extensions: ['xml']},
+					{name: 'All files', extensions: ['*']}
+				]
+			});
+			if (entries.length > 0) {
+				srcTarget.value = entries[0].split('\\').pop().split('/').pop();
+			}
+		}
+	}
+
+
+	/**
+	 * Show a browse dialog to pick an image file.
+	 * @param srcTargetSelector The selector for the input that will receive the chosen filename.
+	 * @param nameTargetSelector The selector for the input that will receive the name of thw chosen file.
+	 * @param previewTargetSelector The selector for the image to display a preview.
+	 */
+	async ImageBrowse(srcTargetSelector, nameTargetSelector, previewTargetSelector) {
+		const srcTarget = document.querySelector(srcTargetSelector);
+		const nameTarget = document.querySelector(nameTargetSelector);
+		const previewTarget = document.querySelector(previewTargetSelector);
+
+		if (App.WebMode) {
+			// @ts-ignore
+			if (typeof window.showOpenFilePicker === 'undefined') {
+				alert('Error, your browser does not support the filesystem api.');
+				return;
+			}
+			let fileHandle = '';
+			const opts = {
+				types: [
+				  {
+					 description: 'Images',
+					 accept: { 'image/*': ['.png', '.gif', '.jpeg', '.jpg', '.webp'] }
+				  },
+				],
+				excludeAcceptAllOption: true,
+				multiple: false
+			 };
+			// @ts-ignore
+			[fileHandle] = await window.showOpenFilePicker(opts) as FileSystemFileHandle;
+			// @ts-ignore
+			const file = await fileHandle.getFile();
+			const fr = new FileReader();
+			fr.readAsDataURL(file);
+			fr.onloadend = function() {
+				srcTarget.value = fr.result;
+				nameTarget.value = file.name;
+				previewTarget.src = srcTarget.value;
+			};
+		}
+		else {
+
+			// @ts-ignore
+			let entries = await Neutralino.os.showOpenDialog('Load Image', {
+				filters: [
+					{name: 'Image File(s)', extensions: ['jpg', 'jpeg', 'png', 'webp']},
+					{name: 'All files', extensions: ['*']}
+				]
+			});
+			if (entries.length > 0) {
+				console.log(entries);
+				// @ts-ignore
+				const file = await Neutralino.filesystem.readBinaryFile(entries[0]);
+				const blob = new Blob([new Uint8Array(file, 0, file.length)]);
+
+				const fr = new FileReader();
+				fr.readAsDataURL(blob);
+				fr.onloadend = function() {
+					srcTarget.value = fr.result;
+					nameTarget.value = entries[0].split('\\').pop().split('/').pop();
+					previewTarget.src = srcTarget.value;
+				};
+				//srcTarget.value = entries[0];
+				//previewTarget.src = entries[0];
+			}
+
+		}
+	}
 }
