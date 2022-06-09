@@ -450,6 +450,23 @@ class SutoriBuilderApp {
 			}
 		}
 
+		// serialize the resources.
+		const resources = root.appendChild(doc.createElement('resources')) as HTMLElement;
+		for (var i=0; i<src.Resources.length; i++) {
+			const resource = src.Resources[i];
+			if (resource instanceof SutoriResourceImage) {
+				const resourceElement = resources.appendChild(doc.createElement('image')) as HTMLElement;
+				if (!ExtraTools.IsEmptyString(resource.ID)) resourceElement.setAttribute('id', resource.ID);
+				if (!ExtraTools.IsEmptyString(resource.Name)) resourceElement.setAttribute('name', resource.Name);
+				if (!ExtraTools.IsEmptyString(resource.Src)) resourceElement.setAttribute('src', resource.Src);
+				if (resource.Preload === true) resourceElement.setAttribute('preload', 'true');
+				// apply the attributes.
+				for (const [key, value] of Object.entries(resource.Attributes)) {
+					resourceElement.setAttribute(key, value);
+				}
+			}
+		}
+
 		// serialize the actors.
 		const actors = root.appendChild(doc.createElement('actors')) as HTMLElement;
 		for (var i=0; i<src.Actors.length; i++) {

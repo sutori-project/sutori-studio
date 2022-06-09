@@ -752,7 +752,7 @@ class SutoriResourceImage extends SutoriResource {
         if (element.hasAttribute('name')) {
             result.Name = element.attributes['name'].textContent;
         }
-        if (element.hasAttribute('resource')) {
+        if (element.hasAttribute('src')) {
             result.Src = element.attributes['src'].textContent;
         }
         return result;

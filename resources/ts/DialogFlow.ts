@@ -259,6 +259,10 @@ class DialogFlow {
 													<a id="button-browse" class="form secondary" onclick="App.Dialogs.ImageBrowse('#tb-src', '#tb-name', '#img-preview');">...</a>
 												</div>
 											</div>
+											<div>
+												<input type="checkbox" class="form" id="cb-preload" ${resource.Preload === true ? 'checked' : ''}>
+												<label class="form" for="cb-preload" title="Load the image data before it is shown.">Pre-Load Image</label>
+											</div>
 
 										</div>
 									</div>
@@ -275,6 +279,7 @@ class DialogFlow {
 			resource.ID = (dialog.querySelector('#tb-id') as HTMLInputElement).value;
 			resource.Src = (dialog.querySelector('#tb-src') as HTMLInputElement).value;
 			resource.Name = (dialog.querySelector('#tb-name') as HTMLInputElement).value;
+			resource.Preload = (dialog.querySelector('#cb-preload') as HTMLInputElement).checked;
 			imageElement.querySelector('.group-id').textContent = '#' + resource.ID;
 			imageElement.querySelector('.group-name').textContent = resource.Name;
 			this.Close();

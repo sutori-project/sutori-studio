@@ -239,6 +239,10 @@ class DialogFlow {
 													<a id="button-browse" class="form secondary" onclick="App.Dialogs.ImageBrowse('#tb-src', '#tb-name', '#img-preview');">...</a>
 												</div>
 											</div>
+											<div>
+												<input type="checkbox" class="form" id="cb-preload" ${resource.Preload === true ? 'checked' : ''}>
+												<label class="form" for="cb-preload" title="Load the image data before it is shown.">Pre-Load Image</label>
+											</div>
 
 										</div>
 									</div>
@@ -254,6 +258,7 @@ class DialogFlow {
             resource.ID = dialog.querySelector('#tb-id').value;
             resource.Src = dialog.querySelector('#tb-src').value;
             resource.Name = dialog.querySelector('#tb-name').value;
+            resource.Preload = dialog.querySelector('#cb-preload').checked;
             imageElement.querySelector('.group-id').textContent = '#' + resource.ID;
             imageElement.querySelector('.group-name').textContent = resource.Name;
             this.Close();
@@ -1293,6 +1298,26 @@ class SutoriBuilderApp {
             includeElement.textContent = src.Includes[i].Path;
             if (src.Includes[i].After) {
                 includeElement.setAttribute('after', 'true');
+            }
+        }
+        // serialize the resources.
+        const resources = root.appendChild(doc.createElement('resources'));
+        for (var i = 0; i < src.Resources.length; i++) {
+            const resource = src.Resources[i];
+            if (resource instanceof SutoriResourceImage) {
+                const resourceElement = resources.appendChild(doc.createElement('image'));
+                if (!ExtraTools.IsEmptyString(resource.ID))
+                    resourceElement.setAttribute('id', resource.ID);
+                if (!ExtraTools.IsEmptyString(resource.Name))
+                    resourceElement.setAttribute('name', resource.Name);
+                if (!ExtraTools.IsEmptyString(resource.Src))
+                    resourceElement.setAttribute('src', resource.Src);
+                if (resource.Preload === true)
+                    resourceElement.setAttribute('preload', 'true');
+                // apply the attributes.
+                for (const [key, value] of Object.entries(resource.Attributes)) {
+                    resourceElement.setAttribute(key, value);
+                }
             }
         }
         // serialize the actors.
