@@ -557,6 +557,22 @@ class SutoriBuilderApp {
 					if (!ExtraTools.IsEmptyString(image.Actor)) ie.setAttribute('actor', image.Actor);
 					if (!ExtraTools.IsEmptyString(image.For)) ie.setAttribute('for', image.For);
 				}
+				else if (element instanceof SutoriElementSet)
+				{
+					const setter = element as SutoriElementSet;
+					const se = momentElement.appendChild(doc.createElement('set')) as HTMLElement;
+					if (setter.ContentCulture !== SutoriCulture.None) se.setAttribute('lang', setter.ContentCulture);
+					if (!ExtraTools.IsEmptyString(setter.Name)) se.setAttribute('name', setter.Name);
+					se.textContent = setter.Value;
+				}
+				else if (element instanceof SutoriElementTrigger)
+				{
+					const trigger = element as SutoriElementTrigger;
+					const te = momentElement.appendChild(doc.createElement('trigger')) as HTMLElement;
+					if (trigger.ContentCulture !== SutoriCulture.None) te.setAttribute('lang', trigger.ContentCulture);
+					if (!ExtraTools.IsEmptyString(trigger.Action)) te.setAttribute('action', trigger.Action);
+					te.textContent = trigger.Body;
+				}
 			}
 		}
 

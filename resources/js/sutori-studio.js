@@ -270,7 +270,7 @@ class DialogFlow {
         const momentRowElement = buttonElement.closest(".moment-row");
         const index = ExtraTools.GetElementIndex(momentRowElement);
         const moment = App.Document.Moments[index];
-        let actor_html = '', triggers = '', setters = '';
+        let actor_html = '', triggers_html = '', setters_html = '';
         let found_selected = false;
         App.Document.Actors.forEach((actor) => {
             const disabled = ExtraTools.IsEmptyString(actor.ID) ? ' disabled' : '';
@@ -279,6 +279,22 @@ class DialogFlow {
                 (actor.ID === moment.Actor)
                 ? ' selected' : '';
             actor_html += `<option value="${actor.ID}"${disabled + selected}>${actor.Name}</option>`;
+        });
+        moment.GetElements(App.SelectedCulture, SutoriElementSet).forEach((setter) => {
+            setters_html += `
+			<tr>
+				<td class="set-name" contenteditable="true">${setter.Name}</td>
+				<td class="set-value" contenteditable="true">${setter.Value}</td>
+				<td><a onclick="this.closest('tr').remove();"><svg width="12" height="12"><use xlink:href="#close"></use></svg></a></td>
+			</tr>`;
+        });
+        moment.GetElements(App.SelectedCulture, SutoriElementTrigger).forEach((setter) => {
+            triggers_html += `
+			<tr>
+				<td class="set-action" contenteditable="true">${setter.Action}</td>
+				<td class="set-body" contenteditable="true">${setter.Body}</td>
+				<td><a onclick="this.closest('tr').remove();"><svg width="12" height="12"><use xlink:href="#close"></use></svg></a></td>
+			</tr>`;
         });
         const pageHtml = `<div>
 
@@ -303,12 +319,40 @@ class DialogFlow {
 												</select>
 											</div>
 											<div>
-												<label for="tb-triggers" class="form">Triggers</label>
-												<textarea disabled id="tb-triggers" type="text" class="form" rows="2" title="One per line.">${triggers}</textarea>
+												<div class="subheader">
+													<label for="tb-setters" class="form">Triggers</label>
+													<a class="button" onclick="App.Dialogs.AddMomentTrigger();">+</a>
+												</div>
+												<div class="trigger-list">
+													<table>
+														<thead>
+															<tr>
+																<th>Action</th>
+																<th>Parameter</th>
+																<th style="width:35px;">&nbsp;</th>
+															</tr>
+														</thead>
+														<tbody>${triggers_html}</tbody>
+													</table>
+												</div>
 											</div>
 											<div>
-												<label for="tb-setters" class="form">Setters</label>
-												<textarea disabled id="tb-setters" type="text" class="form" rows="2" title="One per line (eg: my_var=1).">${setters}</textarea>
+												<div class="subheader">
+													<label for="tb-setters" class="form">Setters</label>
+													<a class="button" onclick="App.Dialogs.AddMomentSetter();">+</a>
+												</div>
+												<div class="setter-list">
+													<table>
+														<thead>
+															<tr>
+																<th>Name</th>
+																<th>Value</th>
+																<th style="width:35px;">&nbsp;</th>
+															</tr>
+														</thead>
+														<tbody>${setters_html}</tbody>
+													</table>
+												</div>
 											</div>											
 											<div>
 												<label class="form">Options</label>
@@ -348,6 +392,24 @@ class DialogFlow {
             else {
                 momentRowElement.querySelector('.moment-avatar').classList.remove('hidden');
             }
+            // replace the triggers.
+            moment.RemoveElements(App.SelectedCulture, SutoriElementTrigger);
+            dialog.querySelectorAll('.trigger-list tbody tr').forEach(tr => {
+                const setter = new SutoriElementTrigger();
+                setter.ContentCulture = App.SelectedCulture;
+                setter.Action = tr.querySelector('.set-action').textContent;
+                setter.Body = tr.querySelector('.set-body').textContent;
+                moment.Elements.push(setter);
+            });
+            // replace the setters.
+            moment.RemoveElements(App.SelectedCulture, SutoriElementSet);
+            dialog.querySelectorAll('.setter-list tbody tr').forEach(tr => {
+                const setter = new SutoriElementSet();
+                setter.ContentCulture = App.SelectedCulture;
+                setter.Name = tr.querySelector('.set-name').textContent;
+                setter.Value = tr.querySelector('.set-value').textContent;
+                moment.Elements.push(setter);
+            });
             this.Close();
         };
         this.ShowDialog('Moment Properties', 'moment-dialog', pageHtml);
@@ -499,6 +561,40 @@ class DialogFlow {
                 //srcTarget.value = entries[0];
                 //previewTarget.src = entries[0];
             }
+        }
+    }
+    /**
+     * Attempts to add a row into the setters table on the moment dialog.
+     * @param name The content of the name column.
+     * @param value The content of the value column.
+     */
+    AddMomentSetter(name = "", value = "") {
+        const wrapper = document.getElementById('dialog-wrapper');
+        const table = wrapper.querySelector('.setter-list');
+        if (typeof table !== 'undefined') {
+            table.querySelector('tbody').innerHTML += `
+			<tr>
+				<td class="set-name" contenteditable="true">${name}</td>
+				<td class="set-value" contenteditable="true">${value}</td>
+				<td><a onclick="this.closest('tr').remove();"><svg width="12" height="12"><use xlink:href="#close"></use></svg></a></td>
+			</tr>`;
+        }
+    }
+    /**
+     * Attempts to add a row into the triggers table on the moment dialog.
+     * @param name The content of the name column.
+     * @param value The content of the value column.
+     */
+    AddMomentTrigger(action = "", bodyValue = "") {
+        const wrapper = document.getElementById('dialog-wrapper');
+        const table = wrapper.querySelector('.trigger-list');
+        if (typeof table !== 'undefined') {
+            table.querySelector('tbody').innerHTML += `
+			<tr>
+				<td class="set-action" contenteditable="true">${action}</td>
+				<td class="set-body" contenteditable="true">${bodyValue}</td>
+				<td><a onclick="this.closest('tr').remove();"><svg width="12" height="12"><use xlink:href="#close"></use></svg></a></td>
+			</tr>`;
         }
     }
 }
@@ -1411,6 +1507,24 @@ class SutoriBuilderApp {
                         ie.setAttribute('actor', image.Actor);
                     if (!ExtraTools.IsEmptyString(image.For))
                         ie.setAttribute('for', image.For);
+                }
+                else if (element instanceof SutoriElementSet) {
+                    const setter = element;
+                    const se = momentElement.appendChild(doc.createElement('set'));
+                    if (setter.ContentCulture !== SutoriCulture.None)
+                        se.setAttribute('lang', setter.ContentCulture);
+                    if (!ExtraTools.IsEmptyString(setter.Name))
+                        se.setAttribute('name', setter.Name);
+                    se.textContent = setter.Value;
+                }
+                else if (element instanceof SutoriElementTrigger) {
+                    const trigger = element;
+                    const te = momentElement.appendChild(doc.createElement('trigger'));
+                    if (trigger.ContentCulture !== SutoriCulture.None)
+                        te.setAttribute('lang', trigger.ContentCulture);
+                    if (!ExtraTools.IsEmptyString(trigger.Action))
+                        te.setAttribute('action', trigger.Action);
+                    te.textContent = trigger.Body;
                 }
             }
         }

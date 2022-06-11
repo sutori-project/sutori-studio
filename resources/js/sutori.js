@@ -400,6 +400,19 @@ class SutoriMoment {
         return elements;
     }
     /**
+     * Remove all elements that have the same culture and type.
+     * @param culture
+     * @param type
+     */
+    RemoveElements(culture, type) {
+        const self = this;
+        const elements = self.GetElements(culture, type);
+        for (var i = 0; i < elements.length; i++) {
+            const index = self.Elements.indexOf(elements[i]);
+            self.Elements.splice(index, 1);
+        }
+    }
+    /**
      * Get an array of text elements.
      * @param culture The SutoriCulture, default is: SutoriCulture.None
      * @returns An array of text elements.
@@ -451,6 +464,22 @@ class SutoriMoment {
      */
     GetVideos(culture) {
         return this.GetElements(culture, SutoriElementVideo);
+    }
+    /**
+     * Get an array of setter elements.
+     * @param culture The SutoriCulture, default is: SutoriCulture.None
+     * @returns An array of video elements.
+     */
+    GetSetters(culture) {
+        return this.GetElements(culture, SutoriElementSet);
+    }
+    /**
+     * Get an array of trigger elements.
+     * @param culture The SutoriCulture, default is: SutoriCulture.None
+     * @returns An array of video elements.
+     */
+    GetTriggers(culture) {
+        return this.GetElements(culture, SutoriElementTrigger);
     }
     /**
     * Try to get an associated actor for this element.

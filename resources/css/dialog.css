@@ -97,3 +97,68 @@
 	max-width: 100%;
 	max-height: 100%;
 }
+
+
+
+
+#dialog-wrapper dialog[open] table {
+	width:100%;
+	border: 1px solid #444;
+	background: var(--menu-input-bg);
+	border-radius: 3px;
+	margin-bottom: 10px;
+	font-size: 90%;
+}
+#dialog-wrapper dialog[open] table * { text-align:left; padding: 5px; }
+#dialog-wrapper dialog[open] table thead { background: var(--menu-bg); }
+#dialog-wrapper dialog[open] table tbody td[contenteditable]:focus { background: #000c; outline:none; }
+
+#dialog-wrapper dialog[open] table tbody td a { display: flex; align-items: center; justify-content: center; }
+#dialog-wrapper dialog[open] table tbody td a:hover { opacity: 0.7; cursor: pointer; }
+#dialog-wrapper dialog[open] table tbody td a svg { fill: white; padding: 0; }
+
+
+
+#dialog-wrapper dialog[open] .subheader {
+	display: flex;
+}
+
+#dialog-wrapper dialog[open] .subheader label {
+	flex-grow: 1;
+	user-select: none;
+}
+
+#dialog-wrapper dialog[open] .subheader .button {
+	display: inline-block;
+	margin-left: 5px;
+	width: 18px;
+	height: 18px;
+	background: hsl(246, 25%, 41%);
+	color: #000;
+	border-radius: 10px;
+	text-align: center;
+	line-height: 18px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: 1200ms opacity, 1200ms outline;
+	outline: 4px solid transparent;
+	user-select: none;
+	border: 0;
+}
+
+#dialog-wrapper dialog[open] .subheader .button:hover, #dialog-wrapper dialog[open] .subheader .button:focus {
+	opacity: 0.9;
+	transition: 100ms all;
+	outline: 4px solid hsl(246, 25%, 79%);
+}
+
+#dialog-wrapper dialog[open] .subheader .button:active {
+	opacity: 0.5;
+}
+
+#dialog-wrapper dialog[open] table tr:not(:last-of-type),
+#dialog-wrapper dialog[open] table td:not(:last-of-type) {
+	width:150px;
+	min-width:150px;
+	max-width:150px;
+}

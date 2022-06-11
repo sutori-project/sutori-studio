@@ -210,6 +210,12 @@ declare class SutoriMoment {
      */
     GetElements(culture?: SutoriCulture, type?: any): any[];
     /**
+     * Remove all elements that have the same culture and type.
+     * @param culture
+     * @param type
+     */
+    RemoveElements(culture?: SutoriCulture, type?: any): void;
+    /**
      * Get an array of text elements.
      * @param culture The SutoriCulture, default is: SutoriCulture.None
      * @returns An array of text elements.
@@ -245,6 +251,18 @@ declare class SutoriMoment {
      * @returns An array of video elements.
      */
     GetVideos(culture?: SutoriCulture): Array<SutoriElementVideo>;
+    /**
+     * Get an array of setter elements.
+     * @param culture The SutoriCulture, default is: SutoriCulture.None
+     * @returns An array of video elements.
+     */
+    GetSetters(culture?: SutoriCulture): Array<SutoriElementSet>;
+    /**
+     * Get an array of trigger elements.
+     * @param culture The SutoriCulture, default is: SutoriCulture.None
+     * @returns An array of video elements.
+     */
+    GetTriggers(culture?: SutoriCulture): Array<SutoriElementTrigger>;
     /**
     * Try to get an associated actor for this element.
     * @param document The owner document.
