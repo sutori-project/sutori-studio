@@ -18,12 +18,13 @@ body, p, div, span {
 
 .mid-pane {
 	display: flex;
-	flex: 1 0;
+	flex: 1 1;
+	max-height: calc(100vh - 32px - 29px);
 }
 
 
 .editor-pane {
-	height: calc(100vh - 32px);
+	height: 100%;
    width: 100%;
    padding: 50px;
    overflow-y: auto;
@@ -45,4 +46,13 @@ body, p, div, span {
 	flex-direction: column;
 	flex-basis: 100%;
 	flex: 1;
+}
+
+.status-bar {
+	height: 28px;
+   background-color: var(--main-bg);
+	border-top: 1px solid hsl(240deg 29% 22%);
+   color: #aaa;
+   line-height: 28px;
+	padding: 0 8px;
 }

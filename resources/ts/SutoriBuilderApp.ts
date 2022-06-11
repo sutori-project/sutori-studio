@@ -50,6 +50,9 @@ class SutoriBuilderApp {
 			document.addEventListener('keydown', app.HandleKeyDown);
 			document.addEventListener('keyup', app.HandleKeyUp);
 
+			const body = document.body as HTMLBodyElement;
+			body.addEventListener('contextmenu', app.HandleContextMenu);
+
 			document.querySelectorAll('li[action="change-lang"]').forEach(li => {
 				li.addEventListener('click', app.HandleChangeLang);
 			});
@@ -121,6 +124,16 @@ class SutoriBuilderApp {
 	 */
 	private HandleKeyDown(e: KeyboardEvent) {
 		switch (e.key) {
+			case 'F5':
+				console.log('reload prevented');
+				e.preventDefault();
+				return false;
+			case 'r':
+				if (e.ctrlKey) {
+					console.log('reload prevented');
+					e.preventDefault();
+					return false;
+				}
 			case 'Enter':
 				const target = e.target as HTMLElement;
 				if (target.classList.contains('group-name')) {
@@ -241,6 +254,24 @@ class SutoriBuilderApp {
 				//console.log(e);
 				break;
 		}
+	}
+
+
+	private HandleContextMenu(e: MouseEvent) {
+		const target = e.target as HTMLElement;
+		const tagname = target.tagName.toLowerCase();
+		const inputType = target instanceof HTMLInputElement ? (target as HTMLInputElement).type : '';
+
+		// allow certain elements to have the context menu
+		if (target.hasAttribute('contenteditable') || (tagname == 'input' && inputType == 'text')
+			|| tagname == 'textarea') {
+			return true;
+		}
+
+		//console.log("Context event fired by", target);
+		//console.log("Context event fired by tagname", target.tagName);
+		e.preventDefault();
+		return false;
 	}
 
 

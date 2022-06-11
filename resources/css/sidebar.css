@@ -5,7 +5,7 @@
 	padding: 25px 25px 10px 25px;
 	color: var(--sidebar-text);
 	overflow: auto;
-	height: calc(100vh - 32px);
+	height: 100%;
 }
 
 
