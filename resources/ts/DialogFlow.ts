@@ -232,14 +232,14 @@ class DialogFlow {
 	}
 
 
-	ShowImageResourceDialog(imageElement?: HTMLElement) {
+	async ShowImageResourceDialog(imageElement?: HTMLElement) {
 		const index = ExtraTools.GetElementIndex(imageElement);
 		const resource = App.Document.Resources[index] as SutoriResourceImage;
 		const pageHtml = `<div>
 									<div class="row has-gap">
 										<div class="column">
 											<figure>
-												<img id="img-preview" src="${resource.Src??''}" />
+												<img id="img-preview" src="" />
 											</figure>
 										</div>
 										<div class="column">
@@ -264,6 +264,8 @@ class DialogFlow {
 												<label class="form" for="cb-preload" title="Load the image data before it is shown.">Pre-Load Image</label>
 											</div>
 
+											<a class="form secondary" onclick="App.Dialogs.EmbedImage();">Embed Image as Data URI.</a>
+
 										</div>
 									</div>
 										
@@ -286,6 +288,7 @@ class DialogFlow {
 		};
 
 		this.ShowDialog('Image Resource Properties', 'resource-dialog', pageHtml);
+		await this.PreviewImage(resource.Src);
 	}
 
 
@@ -599,9 +602,22 @@ class DialogFlow {
 				const fr = new FileReader();
 				fr.readAsDataURL(blob);
 				fr.onloadend = function() {
-					srcTarget.value = fr.result;
-					nameTarget.value = entries[0].split('\\').pop().split('/').pop();
-					previewTarget.src = srcTarget.value;
+
+					const orig_filename = entries[0];
+					const name = orig_filename.split('\\').pop().split('/').pop();
+					let filename = orig_filename;
+					
+					/* if not a url */
+					if (!filename.includes('://')) {
+						/* if filename contains current directory */
+						if (!ExtraTools.IsEmptyString(App.CurrentDirectory) && filename.includes(App.CurrentDirectory)) {
+							filename = filename.replace(App.CurrentDirectory, '');
+						}
+					}
+
+					srcTarget.value = filename;
+					nameTarget.value = name;
+					previewTarget.src = fr.result;
 				};
 				//srcTarget.value = entries[0];
 				//previewTarget.src = entries[0];
@@ -635,7 +651,7 @@ class DialogFlow {
 	 * @param name The content of the name column.
 	 * @param value The content of the value column.
 	 */
-	 AddMomentTrigger(action:string = "", bodyValue:string = "") {
+	AddMomentTrigger(action:string = "", bodyValue:string = "") {
 		const wrapper = document.getElementById('dialog-wrapper');
 		const table = wrapper.querySelector('.trigger-list');
 		if (typeof table !== 'undefined') {
@@ -645,6 +661,46 @@ class DialogFlow {
 				<td class="set-body" contenteditable="true">${bodyValue}</td>
 				<td><a onclick="this.closest('tr').remove();"><svg width="12" height="12"><use xlink:href="#close"></use></svg></a></td>
 			</tr>`;
+		}
+	}
+
+
+	/**
+	 * 
+	 */
+	EmbedImage() {
+		const img = document.getElementById('img-preview') as HTMLImageElement;
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		// Set width and height
+		canvas.width = img.naturalWidth;
+		canvas.height = img.naturalHeight;
+		// Draw the image
+		ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+		// Set the uri on the src input box.
+		const input = document.getElementById('tb-src') as HTMLInputElement;
+		input.value = canvas.toDataURL('image/jpeg');
+	}
+
+
+	/**
+	 * 
+	 * @param uri 
+	 */
+	async PreviewImage(uri:string) {
+		const previewTarget = document.getElementById('img-preview') as HTMLImageElement;
+		if (ExtraTools.IsEmptyString(uri) || uri.includes('://') || uri.includes('data:image')) {
+			previewTarget.src = uri;
+		}
+		else {
+			// @ts-ignore
+			const file = await Neutralino.filesystem.readBinaryFile(uri);
+			const blob = new Blob([new Uint8Array(file, 0, file.length)]);
+			const fr = new FileReader();
+			fr.readAsDataURL(blob);
+			fr.onloadend = function() {
+				previewTarget.src = fr.result as string;
+			};
 		}
 	}
 }

@@ -11,6 +11,7 @@ class SutoriBuilderApp {
 	public readonly Moments: MomentFlow;
 	public readonly Sidebar: SidebarFlow;
 	public readonly Dialogs: DialogFlow;
+	public CurrentDirectory: string;
 	public get SelectedCulture() : SutoriCulture { return this._culture; }
 
 
@@ -26,6 +27,7 @@ class SutoriBuilderApp {
 		this.Moments = new MomentFlow;
 		this.Sidebar = new SidebarFlow;
 		this.Dialogs = new DialogFlow;
+		this.CurrentDirectory = '';
 		this.Reset();
 	}
 
@@ -326,7 +328,11 @@ class SutoriBuilderApp {
 				]
 			});
 			if (entries.length > 0) {
+				
 				const file = entries[0];
+				const name = file.split('\\').pop().split('/').pop();
+				const path = file.replace(name, '');
+				App.CurrentDirectory = path;
 				// @ts-ignore
 				const data = await Neutralino.filesystem.readFile(file);
 				await self._OpenFileData(data);
@@ -338,6 +344,9 @@ class SutoriBuilderApp {
 	}
 
 
+	/**
+	 * @param data 
+	 */
 	private async _OpenFileData(data: any) {
 		const self = App;
 

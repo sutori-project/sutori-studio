@@ -211,15 +211,15 @@ class DialogFlow {
         };
         this.ShowDialog('Actor Properties', 'actor-dialog', pageHtml);
     }
-    ShowImageResourceDialog(imageElement) {
-        var _a, _b;
+    async ShowImageResourceDialog(imageElement) {
+        var _a;
         const index = ExtraTools.GetElementIndex(imageElement);
         const resource = App.Document.Resources[index];
         const pageHtml = `<div>
 									<div class="row has-gap">
 										<div class="column">
 											<figure>
-												<img id="img-preview" src="${(_a = resource.Src) !== null && _a !== void 0 ? _a : ''}" />
+												<img id="img-preview" src="" />
 											</figure>
 										</div>
 										<div class="column">
@@ -235,7 +235,7 @@ class DialogFlow {
 											<div>
 												<label for="tb-src" class="form">File Path/URL</label>
 												<div class="input-with-button">
-													<input id="tb-src" type="text" class="form" value="${(_b = resource.Src) !== null && _b !== void 0 ? _b : ''}" />  
+													<input id="tb-src" type="text" class="form" value="${(_a = resource.Src) !== null && _a !== void 0 ? _a : ''}" />  
 													<a id="button-browse" class="form secondary" onclick="App.Dialogs.ImageBrowse('#tb-src', '#tb-name', '#img-preview');">...</a>
 												</div>
 											</div>
@@ -243,6 +243,8 @@ class DialogFlow {
 												<input type="checkbox" class="form" id="cb-preload" ${resource.Preload === true ? 'checked' : ''}>
 												<label class="form" for="cb-preload" title="Load the image data before it is shown.">Pre-Load Image</label>
 											</div>
+
+											<a class="form secondary" onclick="App.Dialogs.EmbedImage();">Embed Image as Data URI.</a>
 
 										</div>
 									</div>
@@ -264,6 +266,7 @@ class DialogFlow {
             this.Close();
         };
         this.ShowDialog('Image Resource Properties', 'resource-dialog', pageHtml);
+        await this.PreviewImage(resource.Src);
     }
     ShowMomentDialog(buttonElement) {
         var _a, _b;
@@ -554,9 +557,19 @@ class DialogFlow {
                 const fr = new FileReader();
                 fr.readAsDataURL(blob);
                 fr.onloadend = function () {
-                    srcTarget.value = fr.result;
-                    nameTarget.value = entries[0].split('\\').pop().split('/').pop();
-                    previewTarget.src = srcTarget.value;
+                    const orig_filename = entries[0];
+                    const name = orig_filename.split('\\').pop().split('/').pop();
+                    let filename = orig_filename;
+                    /* if not a url */
+                    if (!filename.includes('://')) {
+                        /* if filename contains current directory */
+                        if (!ExtraTools.IsEmptyString(App.CurrentDirectory) && filename.includes(App.CurrentDirectory)) {
+                            filename = filename.replace(App.CurrentDirectory, '');
+                        }
+                    }
+                    srcTarget.value = filename;
+                    nameTarget.value = name;
+                    previewTarget.src = fr.result;
                 };
                 //srcTarget.value = entries[0];
                 //previewTarget.src = entries[0];
@@ -595,6 +608,42 @@ class DialogFlow {
 				<td class="set-body" contenteditable="true">${bodyValue}</td>
 				<td><a onclick="this.closest('tr').remove();"><svg width="12" height="12"><use xlink:href="#close"></use></svg></a></td>
 			</tr>`;
+        }
+    }
+    /**
+     *
+     */
+    EmbedImage() {
+        const img = document.getElementById('img-preview');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        // Set width and height
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        // Draw the image
+        ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+        // Set the uri on the src input box.
+        const input = document.getElementById('tb-src');
+        input.value = canvas.toDataURL('image/jpeg');
+    }
+    /**
+     *
+     * @param uri
+     */
+    async PreviewImage(uri) {
+        const previewTarget = document.getElementById('img-preview');
+        if (ExtraTools.IsEmptyString(uri) || uri.includes('://') || uri.includes('data:image')) {
+            previewTarget.src = uri;
+        }
+        else {
+            // @ts-ignore
+            const file = await Neutralino.filesystem.readBinaryFile(uri);
+            const blob = new Blob([new Uint8Array(file, 0, file.length)]);
+            const fr = new FileReader();
+            fr.readAsDataURL(blob);
+            fr.onloadend = function () {
+                previewTarget.src = fr.result;
+            };
         }
     }
 }
@@ -1022,6 +1071,7 @@ class SutoriBuilderApp {
         this.Moments = new MomentFlow;
         this.Sidebar = new SidebarFlow;
         this.Dialogs = new DialogFlow;
+        this.CurrentDirectory = '';
         this.Reset();
     }
     get SelectedCulture() { return this._culture; }
@@ -1294,12 +1344,18 @@ class SutoriBuilderApp {
             });
             if (entries.length > 0) {
                 const file = entries[0];
+                const name = file.split('\\').pop().split('/').pop();
+                const path = file.replace(name, '');
+                App.CurrentDirectory = path;
                 // @ts-ignore
                 const data = await Neutralino.filesystem.readFile(file);
                 await self._OpenFileData(data);
             }
         }
     }
+    /**
+     * @param data
+     */
     async _OpenFileData(data) {
         const self = App;
         // clean up the ui first.
