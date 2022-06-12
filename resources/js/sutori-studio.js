@@ -96,9 +96,6 @@ class DialogFlow {
 											${actor_html}
 										</select>
 									</div>
-									<div>
-										<label class="form">Options</label>
-									</div>
 									<div style="text-align:right; margin-top:15px;">
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
 										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
@@ -264,15 +261,21 @@ class DialogFlow {
 										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
-        this.OkCallback = function () {
+        this.OkCallback = async function () {
             const dest = document.getElementById('dialog-wrapper');
             const dialog = dest.querySelector('dialog');
             resource.ID = dialog.querySelector('#tb-id').value;
-            resource.Src = dialog.querySelector('#tb-src').value;
+            const oldSrc = resource.Src;
+            const newSrc = dialog.querySelector('#tb-src').value;
+            const srcChanged = oldSrc !== newSrc;
+            resource.Src = newSrc;
             resource.Name = dialog.querySelector('#tb-name').value;
             resource.Preload = dialog.querySelector('#cb-preload').checked;
             imageElement.querySelector('.group-id').textContent = '#' + resource.ID;
             imageElement.querySelector('.group-name').textContent = resource.Name;
+            if (srcChanged) {
+                await App.GetThumbnailDataUri(resource.ID, resource.Src);
+            }
             this.Close();
         };
         this.ShowDialog('Image Resource Properties', 'resource-dialog', pageHtml);

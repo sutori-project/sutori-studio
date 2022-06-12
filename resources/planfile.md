@@ -9,16 +9,26 @@
 - Add setters list to moment properties dialog. [done]
 - Allow the loading and saving of files with media and options. [done]
 - Added ability to load relative images, and also embed them. [done]
+- Show thumbnail for loaded images. [done]
 
 ## Still To Do:
 
-- Show thumbnail for loaded images.
 - Add ability to show assigned colours for actors.
 - Add a custom properties table for actors, moments, media & options.
 - Auto-update id's when changing the id of an actor (and prompt before doing it).
+- Settings system and screen.
+- Splash Screen.
+- Ability to publish game.
+
+## Bugs
+
+- The sidebar file icon is really bad.
+- There is currently no code to alert the user when they are about to create a duplicate resource id.
+- When a resource id changes, or resource is removed, the app does not yet update moments and their elements appropriately.
+- Resource name gets replaced when you load a file when it shouldn't.
+- Embed image does not yet work correctly, it tends to clip the image.
+
 
 ## Stretch goals.
 
-- Settings screen.
-- Ability to export/publish game.
 - Other forms of media like audio/video.
