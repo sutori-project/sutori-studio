@@ -64,7 +64,7 @@ class DialogFlow {
         let found_selected = false;
         App.Document.Resources.forEach((res) => {
             const disabled = ExtraTools.IsEmptyString(res.ID) ? ' disabled' : '';
-            const selected = (ExtraTools.IsEmptyString(image.Actor) === false) &&
+            const selected = (ExtraTools.IsEmptyString(image.ResourceID) === false) &&
                 (res.ID === image.ResourceID)
                 ? ' selected' : '';
             resource_html += `<option value="${res.ID}"${disabled + selected}>${res.Name}</option>`;
@@ -79,7 +79,7 @@ class DialogFlow {
         });
         const pageHtml = `<div>
 									<div>
-										<label for="tb-rid" class="form">Resource ID</label>
+										<label for="sb-rid" class="form">Resource ID</label>
 										<select id="sb-rid" class="form">
 											<option value="">-- Inherit --</option>
 											${resource_html}
@@ -104,10 +104,10 @@ class DialogFlow {
 										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
 									</div>
 								</div>`;
-        this.OkCallback = function () {
+        this.OkCallback = async function () {
             const dest = document.getElementById('dialog-wrapper');
             const dialog = dest.querySelector('dialog');
-            image.ResourceID = dialog.querySelector('#tb-rid').value;
+            image.ResourceID = dialog.querySelector('#sb-rid').value;
             image.For = dialog.querySelector('#tb-for').value;
             image.Actor = dialog.querySelector('#sb-actor').value;
             // cast back to null if empty strings are passed.
@@ -117,6 +117,16 @@ class DialogFlow {
                 image.For = null;
             if (image.Actor === '')
                 image.Actor = null;
+            // -- update the thumbnail --
+            let src = '';
+            if (!ExtraTools.IsEmptyString(image.ResourceID)) {
+                const resource = App.Document.GetResourceByID(image.ResourceID);
+                if (resource instanceof SutoriResourceImage) {
+                    src = await App.GetThumbnailDataUri(resource.ID, resource.Src);
+                }
+            }
+            imageElement.querySelector('img').src = src;
+            // -- update the thumbnail --
             this.Close();
         };
         this.ShowDialog('Image Properties', 'image-properties-dialog', pageHtml);
@@ -636,8 +646,10 @@ class DialogFlow {
             previewTarget.src = uri;
         }
         else {
+            // assume absolute url if : is included.
+            const filename = uri.includes(':') ? uri : App.CurrentDirectory + uri;
             // @ts-ignore
-            const file = await Neutralino.filesystem.readBinaryFile(uri);
+            const file = await Neutralino.filesystem.readBinaryFile(filename);
             const blob = new Blob([new Uint8Array(file, 0, file.length)]);
             const fr = new FileReader();
             fr.readAsDataURL(blob);
@@ -724,7 +736,52 @@ class ExtraTools {
             document.onmousemove = null;
         }
     }
-    static ImageToUri(imageData) {
+    static async GenerateThumbnail(uri, maxWidth = 128) {
+        let blob = null;
+        if (ExtraTools.IsEmptyString(uri) || uri.includes('://') || uri.includes('data:image')) {
+            const w_response = await fetch(uri);
+            blob = await w_response.blob();
+        }
+        else {
+            // assume absolute url if : is included.
+            const filename = uri.includes(':') ? uri : App.CurrentDirectory + uri;
+            // @ts-ignore
+            const file = await Neutralino.filesystem.readBinaryFile(filename);
+            blob = new Blob([new Uint8Array(file, 0, file.length)]);
+        }
+        // load the orig image.
+        const orig_src = await ExtraTools.LoadImageDataUriFromBlob(blob);
+        const orig_img = await ExtraTools.LoadImage(orig_src);
+        //orig_img.setAttribute('width', maxWidth.toString());
+        //orig_img.setAttribute('height', maxHeight.toString());
+        // generate the thumbnail using canvas.
+        const thumb_canvas = document.createElement('canvas');
+        const ctx = thumb_canvas.getContext('2d');
+        const scale = maxWidth / orig_img.width;
+        const maxHeight = orig_img.height * scale;
+        thumb_canvas.width = maxWidth;
+        thumb_canvas.height = maxHeight;
+        ctx.drawImage(orig_img, 0, 0, maxWidth, maxHeight);
+        const thumb = document.createElement('img');
+        thumb.src = thumb_canvas.toDataURL();
+        return thumb;
+    }
+    static async LoadImage(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = src;
+        });
+    }
+    static async LoadImageDataUriFromBlob(blob) {
+        return await new Promise((resolve, reject) => {
+            const fr = new FileReader();
+            fr.onloadend = function () {
+                resolve(fr.result);
+            };
+            fr.readAsDataURL(blob);
+        });
     }
     static GetSolverByValue(value) {
         const values = Object.values(SutoriSolver);
@@ -813,12 +870,15 @@ class MomentFlow {
     }
     AddImage(momentElement, src) {
         const mediaElement = momentElement.parentElement.querySelector('.moment-media');
+        if (typeof src == 'undefined')
+            src = '';
         mediaElement.innerHTML +=
             `<div class="moment-image" tabindex="0">` +
                 `<div class="buttons">` +
                 `<a onclick="App.Dialogs.ShowImagePropertiesDialog(this);" title="Image Properties"><svg width="12" height="12"><use xlink:href="#cog"/></svg></a>` +
                 `<a onclick="App.Moments.HandleRemoveImage(this);" title="Remove This Image"><svg width="12" height="12"><use xlink:href="#close"/></svg></a>` +
                 `</div>` +
+                `<img src="${src}" />` +
                 `<svg width="24" height="24"><use xlink:href="#image"/></svg>` +
                 `</div>`;
     }
@@ -1072,7 +1132,12 @@ class SutoriBuilderApp {
         this.Sidebar = new SidebarFlow;
         this.Dialogs = new DialogFlow;
         this.CurrentDirectory = '';
-        this.Reset();
+        this.CurrentFilename = '';
+        this.CurrentName = '';
+        this._loadedDocument = new SutoriDocument;
+        this._thumbs = new Map();
+        this.Sidebar.Reset();
+        this.Moments.Reset();
     }
     get SelectedCulture() { return this._culture; }
     get Document() { return this._loadedDocument; }
@@ -1304,14 +1369,18 @@ class SutoriBuilderApp {
         const message = 'Are you sure you wish to do this?';
         console.log('new clicked', App.WebMode);
         if (App.WebMode == true) {
-            if (confirm(message) == true)
-                App.Reset();
+            if (confirm(message) == true) {
+                await App.Reset();
+                await App.SetCurrentFile("");
+            }
         }
         else {
             // @ts-ignore
             let button = await Neutralino.os.showMessageBox('New Document', message, 'OK_CANCEL', 'QUESTION');
-            if (button == 'OK')
-                App.Reset();
+            if (button == 'OK') {
+                await App.Reset();
+                await App.SetCurrentFile("");
+            }
         }
     }
     /**
@@ -1344,9 +1413,7 @@ class SutoriBuilderApp {
             });
             if (entries.length > 0) {
                 const file = entries[0];
-                const name = file.split('\\').pop().split('/').pop();
-                const path = file.replace(name, '');
-                App.CurrentDirectory = path;
+                await App.SetCurrentFile(file);
                 // @ts-ignore
                 const data = await Neutralino.filesystem.readFile(file);
                 await self._OpenFileData(data);
@@ -1359,7 +1426,7 @@ class SutoriBuilderApp {
     async _OpenFileData(data) {
         const self = App;
         // clean up the ui first.
-        self.Reset();
+        await self.Reset();
         const doc = self._loadedDocument = new SutoriDocument();
         doc.CustomUriLoader = async function (uri) {
             // we don't want to load dependencies, so just return nothing.
@@ -1379,7 +1446,7 @@ class SutoriBuilderApp {
             const actorElement = self.Sidebar.AddActor(actor.Name, actor.ID, color, false);
         });
         // add the moments.
-        doc.Moments.forEach((moment) => {
+        doc.Moments.forEach(async (moment) => {
             const text = moment.GetText(self._culture);
             const momentElement = self.Moments.AddRow(text, moment.ID, moment.Actor, false);
             // switch the options.
@@ -1391,8 +1458,17 @@ class SutoriBuilderApp {
             // switch the media.
             const mediaContainer = momentElement.querySelector('.moment-media');
             mediaContainer.innerHTML = '';
-            moment.GetImages(App._culture).forEach(image => {
-                App.Moments.AddImage(momentElement, '');
+            moment.GetImages(App._culture).forEach(async (image) => {
+                /* -- find or gen thumb -- */
+                let src = '';
+                if (!ExtraTools.IsEmptyString(image.ResourceID)) {
+                    const resource = doc.GetResourceByID(image.ResourceID);
+                    if (resource instanceof SutoriResourceImage) {
+                        src = await App.GetThumbnailDataUri(resource.ID, resource.Src);
+                    }
+                }
+                /* -- find or gen thumb -- */
+                App.Moments.AddImage(momentElement, src);
             });
         });
         // add the resources.
@@ -1451,9 +1527,9 @@ class SutoriBuilderApp {
                 ]
             });
             if (file.length > 0) {
-                // save it to the filesystem.
                 // @ts-ignore
                 await Neutralino.filesystem.writeFile(file, xml);
+                await App.SetCurrentFile(file);
                 saved = true;
             }
         }
@@ -1588,7 +1664,7 @@ class SutoriBuilderApp {
     /**
      * Reset the state of the app without prompt.
      */
-    Reset() {
+    async Reset() {
         const self = this;
         self._loadedDocument = new SutoriDocument;
         self.Sidebar.Reset();
@@ -1607,6 +1683,38 @@ class SutoriBuilderApp {
     Exit() {
         // @ts-ignore
         Neutralino.app.exit();
+    }
+    /**
+     * Set the currently open file (also updates the window title).
+     * @param filename
+     */
+    async SetCurrentFile(filename) {
+        console.log(filename);
+        const self = this;
+        // save it to the filesystem.
+        const name = filename.split('\\').pop().split('/').pop();
+        const path = filename.replace(name, '');
+        self.CurrentDirectory = path;
+        self.CurrentFilename = filename;
+        self.CurrentName = name;
+        // figure out weather we have a name to use for the title.
+        const title = ExtraTools.IsEmptyString(name) ? 'Untitled' : name;
+        // @ts-ignore
+        await Neutralino.window.setTitle(`[${title}] - Sutori Studio`);
+    }
+    /**
+     * Gets a thumbnail for the provided URI. If a thumbnail was previously
+     * generated, that is returned instead. Returned string is a data uri
+     * that can be passed into an images src attribute.
+     * @param key
+     * @param uri
+     */
+    async GetThumbnailDataUri(key, uri) {
+        if (!this._thumbs.has(key)) {
+            this._thumbs[key] = await ExtraTools.GenerateThumbnail(uri);
+        }
+        const img = this._thumbs[key];
+        return img.src;
     }
 }
 ;

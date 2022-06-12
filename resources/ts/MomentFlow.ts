@@ -90,12 +90,14 @@ class MomentFlow {
 
 	public AddImage(momentElement: HTMLElement, src?: string) {
 		const mediaElement = momentElement.parentElement.querySelector('.moment-media');
+		if (typeof src == 'undefined') src = '';
 		mediaElement.innerHTML +=
 			`<div class="moment-image" tabindex="0">` +
 				`<div class="buttons">` +
 					`<a onclick="App.Dialogs.ShowImagePropertiesDialog(this);" title="Image Properties"><svg width="12" height="12"><use xlink:href="#cog"/></svg></a>` +
 					`<a onclick="App.Moments.HandleRemoveImage(this);" title="Remove This Image"><svg width="12" height="12"><use xlink:href="#close"/></svg></a>` +
 				`</div>` +
+				`<img src="${src}" />` +
 				`<svg width="24" height="24"><use xlink:href="#image"/></svg>` +
 			`</div>`;
 	}

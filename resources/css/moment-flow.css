@@ -177,6 +177,15 @@
    margin: 5px;
 }
 
+.moment-media .moment-image img {
+	max-width: 128px;
+	max-height: 128px;
+	object-fit: contain;
+}
+
+.moment-media .moment-image img[src=""] { display:none; }
+.moment-media .moment-image img:not([src=""]) + svg { display:none; }
+
 .moment-media .moment-image .buttons { display:none; }
 
 .moment-media .moment-image:focus {

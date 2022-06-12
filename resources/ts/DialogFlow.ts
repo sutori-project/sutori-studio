@@ -73,7 +73,7 @@ class DialogFlow {
 
 		App.Document.Resources.forEach((res: SutoriResource) => {
 			const disabled = ExtraTools.IsEmptyString(res.ID) ? ' disabled' : '';
-			const selected = (ExtraTools.IsEmptyString(image.Actor) === false) && 
+			const selected = (ExtraTools.IsEmptyString(image.ResourceID) === false) && 
 								  (res.ID === image.ResourceID)
 								  ? ' selected' : '';
 			resource_html += `<option value="${res.ID}"${disabled+selected}>${res.Name}</option>`;
@@ -90,7 +90,7 @@ class DialogFlow {
 
 		const pageHtml = `<div>
 									<div>
-										<label for="tb-rid" class="form">Resource ID</label>
+										<label for="sb-rid" class="form">Resource ID</label>
 										<select id="sb-rid" class="form">
 											<option value="">-- Inherit --</option>
 											${resource_html}
@@ -116,16 +116,28 @@ class DialogFlow {
 									</div>
 								</div>`;
 
-		this.OkCallback = function() {
+		this.OkCallback = async function() {
 			const dest = document.getElementById('dialog-wrapper');
 			const dialog = dest.querySelector('dialog') as HTMLElement;
-			image.ResourceID = (dialog.querySelector('#tb-rid') as HTMLInputElement).value;
+			image.ResourceID = (dialog.querySelector('#sb-rid') as HTMLInputElement).value;
 			image.For = (dialog.querySelector('#tb-for') as HTMLInputElement).value;
 			image.Actor = (dialog.querySelector('#sb-actor') as HTMLSelectElement).value;
 			// cast back to null if empty strings are passed.
 			if (image.ResourceID === '') image.ResourceID = null;
 			if (image.For === '') image.For = null;
-			if (image.Actor === '') image.Actor = null;			
+			if (image.Actor === '') image.Actor = null;
+
+			// -- update the thumbnail --
+			let src = '';
+			if (!ExtraTools.IsEmptyString(image.ResourceID)) {
+				const resource = App.Document.GetResourceByID(image.ResourceID) as SutoriResourceImage;
+				if (resource instanceof SutoriResourceImage) {
+					src = await App.GetThumbnailDataUri(resource.ID, resource.Src);
+				}
+			}
+			imageElement.querySelector('img').src = src;
+			// -- update the thumbnail --
+
 			this.Close();
 		};
 
@@ -693,8 +705,10 @@ class DialogFlow {
 			previewTarget.src = uri;
 		}
 		else {
+			// assume absolute url if : is included.
+			const filename = uri.includes(':') ? uri : App.CurrentDirectory + uri;
 			// @ts-ignore
-			const file = await Neutralino.filesystem.readBinaryFile(uri);
+			const file = await Neutralino.filesystem.readBinaryFile(filename);
 			const blob = new Blob([new Uint8Array(file, 0, file.length)]);
 			const fr = new FileReader();
 			fr.readAsDataURL(blob);

@@ -4,6 +4,7 @@ declare var App: SutoriBuilderApp
 class SutoriBuilderApp {
 	private _loadedDocument?: SutoriDocument;
 	private _culture: SutoriCulture = SutoriCulture.None;
+	private _thumbs: Map<string, HTMLImageElement>;
 	
 	
 	public readonly WebMode: boolean;
@@ -12,6 +13,8 @@ class SutoriBuilderApp {
 	public readonly Sidebar: SidebarFlow;
 	public readonly Dialogs: DialogFlow;
 	public CurrentDirectory: string;
+	public CurrentFilename: string;
+	public CurrentName: string;
 	public get SelectedCulture() : SutoriCulture { return this._culture; }
 
 
@@ -28,7 +31,12 @@ class SutoriBuilderApp {
 		this.Sidebar = new SidebarFlow;
 		this.Dialogs = new DialogFlow;
 		this.CurrentDirectory = '';
-		this.Reset();
+		this.CurrentFilename = '';
+		this.CurrentName = '';
+		this._loadedDocument = new SutoriDocument;
+		this._thumbs = new Map<string, HTMLImageElement>();
+		this.Sidebar.Reset();
+		this.Moments.Reset();
 	}
 
 
@@ -285,13 +293,19 @@ class SutoriBuilderApp {
 		console.log('new clicked', App.WebMode);
 
 		if (App.WebMode == true) {
-			if (confirm(message) == true) App.Reset();
+			if (confirm(message) == true) {
+				await App.Reset();
+				await App.SetCurrentFile("");
+			}
 		}
 		else {
 			// @ts-ignore
 			let button = await Neutralino.os.showMessageBox('New Document',
 							 message, 'OK_CANCEL', 'QUESTION');
-			if (button == 'OK') App.Reset();
+			if (button == 'OK') {
+				await App.Reset();
+				await App.SetCurrentFile("");
+			}
 		}
 	}
 
@@ -328,11 +342,8 @@ class SutoriBuilderApp {
 				]
 			});
 			if (entries.length > 0) {
-				
 				const file = entries[0];
-				const name = file.split('\\').pop().split('/').pop();
-				const path = file.replace(name, '');
-				App.CurrentDirectory = path;
+				await App.SetCurrentFile(file);
 				// @ts-ignore
 				const data = await Neutralino.filesystem.readFile(file);
 				await self._OpenFileData(data);
@@ -351,7 +362,7 @@ class SutoriBuilderApp {
 		const self = App;
 
 		// clean up the ui first.
-		self.Reset();
+		await self.Reset();
 		const doc = self._loadedDocument = new SutoriDocument();
 		doc.CustomUriLoader = async function(uri: String) {
 			// we don't want to load dependencies, so just return nothing.
@@ -374,7 +385,7 @@ class SutoriBuilderApp {
 		});
 
 		// add the moments.
-		doc.Moments.forEach((moment: SutoriMoment) => {
+		doc.Moments.forEach(async(moment: SutoriMoment) => {
 			const text = moment.GetText(self._culture);
 			const momentElement = self.Moments.AddRow(text, moment.ID, moment.Actor, false);
 
@@ -388,8 +399,19 @@ class SutoriBuilderApp {
 			// switch the media.
 			const mediaContainer = momentElement.querySelector('.moment-media');
 			mediaContainer.innerHTML = '';
-			moment.GetImages(App._culture).forEach(image => {
-				App.Moments.AddImage(momentElement, '');
+			moment.GetImages(App._culture).forEach(async image => {
+
+				/* -- find or gen thumb -- */
+				let src = '';
+				if (!ExtraTools.IsEmptyString(image.ResourceID)) {
+					const resource = doc.GetResourceByID(image.ResourceID) as SutoriResourceImage;
+					if (resource instanceof SutoriResourceImage) {
+						src = await App.GetThumbnailDataUri(resource.ID, resource.Src);
+					}
+				}
+				/* -- find or gen thumb -- */
+
+				App.Moments.AddImage(momentElement, src);
 			});
 		});
 
@@ -457,9 +479,9 @@ class SutoriBuilderApp {
 				]
 			});
 			if (file.length > 0) {
-				// save it to the filesystem.
 				// @ts-ignore
 				await Neutralino.filesystem.writeFile(file, xml);
+				await App.SetCurrentFile(file);
 				saved = true;
 			}
 
@@ -591,7 +613,7 @@ class SutoriBuilderApp {
 	/**
 	 * Reset the state of the app without prompt.
 	 */
-	public Reset() {
+	public async Reset() {
 		const self = this;
 		self._loadedDocument = new SutoriDocument;
 		self.Sidebar.Reset();
@@ -614,5 +636,41 @@ class SutoriBuilderApp {
 	public Exit() {
 		// @ts-ignore
 		Neutralino.app.exit();
+	}
+
+
+	/**
+	 * Set the currently open file (also updates the window title).
+	 * @param filename 
+	 */
+	async SetCurrentFile(filename: string) {
+		console.log(filename);
+		const self = this;
+		// save it to the filesystem.
+		const name = filename.split('\\').pop().split('/').pop();
+		const path = filename.replace(name, '');
+		self.CurrentDirectory = path;
+		self.CurrentFilename = filename;
+		self.CurrentName = name;
+		// figure out weather we have a name to use for the title.
+		const title = ExtraTools.IsEmptyString(name) ? 'Untitled' : name;
+		// @ts-ignore
+		await Neutralino.window.setTitle(`[${title}] - Sutori Studio`);
+	}
+
+
+	/**
+	 * Gets a thumbnail for the provided URI. If a thumbnail was previously
+	 * generated, that is returned instead. Returned string is a data uri
+	 * that can be passed into an images src attribute.
+	 * @param key 
+	 * @param uri 
+	 */
+	async GetThumbnailDataUri(key: string, uri: string) : Promise<string> {
+		if (!this._thumbs.has(key)) {
+			this._thumbs[key] = await ExtraTools.GenerateThumbnail(uri);
+		}
+		const img = this._thumbs[key];
+		return img.src;
 	}
 };

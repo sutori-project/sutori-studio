@@ -86,8 +86,62 @@ class ExtraTools {
 	}
 
 
-	static ImageToUri(imageData: any) {
+	static async GenerateThumbnail( uri: any, maxWidth: number = 128) {
+		let blob: Blob = null;
 
+		if (ExtraTools.IsEmptyString(uri) || uri.includes('://') || uri.includes('data:image')) {
+			const w_response = await fetch(uri);
+			blob = await w_response.blob();
+		}
+		else {
+			// assume absolute url if : is included.
+			const filename = uri.includes(':') ? uri : App.CurrentDirectory + uri;
+			// @ts-ignore
+			const file = await Neutralino.filesystem.readBinaryFile(filename);
+			blob = new Blob([new Uint8Array(file, 0, file.length)]);
+		}
+
+		// load the orig image.
+		const orig_src = await ExtraTools.LoadImageDataUriFromBlob(blob);
+		const orig_img = await ExtraTools.LoadImage(orig_src);
+		//orig_img.setAttribute('width', maxWidth.toString());
+		//orig_img.setAttribute('height', maxHeight.toString());
+
+		// generate the thumbnail using canvas.
+		const thumb_canvas = document.createElement('canvas');
+		const ctx = thumb_canvas.getContext('2d');
+		const scale = maxWidth / orig_img.width;
+		const maxHeight = orig_img.height * scale;
+		
+		thumb_canvas.width =maxWidth;
+		thumb_canvas.height = maxHeight;
+		ctx.drawImage(orig_img, 0, 0, maxWidth, maxHeight);
+
+		const thumb = document.createElement('img');
+		thumb.src = thumb_canvas.toDataURL();
+
+		return thumb;
+	}
+
+
+	static async LoadImage(src: string) : Promise<HTMLImageElement> {
+		return new Promise((resolve, reject) => {
+			const img = new Image();
+			img.onload = () => resolve(img);
+			img.onerror = reject;
+			img.src = src;
+		 })  
+	}
+
+
+	static async LoadImageDataUriFromBlob(blob: Blob) : Promise<string> {
+		return await new Promise((resolve, reject) => {
+			const fr = new FileReader();
+			fr.onloadend = function() {
+				resolve(fr.result as string);
+			};
+			fr.readAsDataURL(blob);
+		});
 	}
 
 

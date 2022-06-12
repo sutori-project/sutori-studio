@@ -18,6 +18,7 @@
     "debug.log",
     "window.getSize",
     "window.getPosition",
+    "window.setTitle",
     "window.move",
     "filesystem.readFile",
     "filesystem.readBinaryFile",
