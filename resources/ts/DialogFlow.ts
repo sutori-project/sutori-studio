@@ -202,7 +202,7 @@ class DialogFlow {
 										<label for="tb-color" class="form">Color</label>
 										<div class="row has-gap">
 											<div class="column" style="flex: 0 1; justify-content: center;	padding-bottom: 5px;">
-												<span>#000000</span>
+												<span>${color}</span>
 											</div>
 											<div class="column">
 												<input id="tb-color" type="color" class="form" value="${color}" onchange="this.setAttribute('value', this.value);this.parentElement.parentElement.querySelector('span').textContent=this.value;" />  
@@ -228,12 +228,12 @@ class DialogFlow {
 			else {
 				actor.Attributes['color'] = chosen_color;
 			}
-
-			if (chosen_color == '' && color_was_set) 
+			actorElement.setAttribute('style', `--bg: ${chosen_color}`);
 
 			if (actor.ID == "") actor.ID = null;
 			actorElement.querySelector('.group-name').textContent = actor.Name;
 			actorElement.querySelector('.group-id').textContent = '#' + actor.ID;
+			
 			this.Close();
 		};
 

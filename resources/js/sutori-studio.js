@@ -184,7 +184,7 @@ class DialogFlow {
 										<label for="tb-color" class="form">Color</label>
 										<div class="row has-gap">
 											<div class="column" style="flex: 0 1; justify-content: center;	padding-bottom: 5px;">
-												<span>#000000</span>
+												<span>${color}</span>
 											</div>
 											<div class="column">
 												<input id="tb-color" type="color" class="form" value="${color}" onchange="this.setAttribute('value', this.value);this.parentElement.parentElement.querySelector('span').textContent=this.value;" />  
@@ -209,9 +209,9 @@ class DialogFlow {
             else {
                 actor.Attributes['color'] = chosen_color;
             }
-            if (chosen_color == '' && color_was_set)
-                if (actor.ID == "")
-                    actor.ID = null;
+            actorElement.setAttribute('style', `--bg: ${chosen_color}`);
+            if (actor.ID == "")
+                actor.ID = null;
             actorElement.querySelector('.group-name').textContent = actor.Name;
             actorElement.querySelector('.group-id').textContent = '#' + actor.ID;
             this.Close();
@@ -1058,10 +1058,10 @@ class SidebarFlow {
      */
     AddActor(name = "Untitled", id, color, createDocElement = true) {
         const random_id = ExtraTools.IsEmptyString(id) ? ExtraTools.RandomID() : id;
-        const color_h = ExtraTools.IsEmptyString(color) ? '' : `data-color="${color}"`;
+        const color_h = ExtraTools.IsEmptyString(color) ? '#FF6263' : color;
         //const xml_old = `<li tabindex="0" class="group has-icon" style="--bg: #FFF"><svg class="icon" width="16" height="16"><use xlink:href="#avatar"/></svg><span class="group-name" contenteditable="false">${name}</span></li>`;
-        const xml = `<li tabindex="0" class="group has-icon" style="--bg: #FF6263">` +
-            `<svg class="icon" width="16" height="16" ${color_h}><use xlink:href="#avatar"/></svg>` +
+        const xml = `<li tabindex="0" class="group has-icon" style="--bg: ${color_h}">` +
+            `<svg class="icon" width="16" height="16"><use xlink:href="#avatar"/></svg>` +
             `<span class="group-name" onclick="App.Sidebar.HandleGroupNameClick(event);" contenteditable="false">${name}</span><small class="group-id">#${random_id}</small>` +
             `<a class="button" onclick="App.Dialogs.ShowActorDialog(this.parentElement)">` +
             `<svg width="12" height="12"><use xlink:href="#cog"/></svg></a>` +

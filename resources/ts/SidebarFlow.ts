@@ -45,10 +45,10 @@ class SidebarFlow {
 	 */
 	public AddActor(name: string = "Untitled", id?: string, color?: string, createDocElement: boolean = true) : HTMLElement {
 		const random_id = ExtraTools.IsEmptyString(id) ? ExtraTools.RandomID() : id;
-		const color_h = ExtraTools.IsEmptyString(color) ? '' : `data-color="${color}"`;
+		const color_h = ExtraTools.IsEmptyString(color) ? '#FF6263' : color;
 		//const xml_old = `<li tabindex="0" class="group has-icon" style="--bg: #FFF"><svg class="icon" width="16" height="16"><use xlink:href="#avatar"/></svg><span class="group-name" contenteditable="false">${name}</span></li>`;
-		const xml = `<li tabindex="0" class="group has-icon" style="--bg: #FF6263">` +
-							`<svg class="icon" width="16" height="16" ${color_h}><use xlink:href="#avatar"/></svg>` +
+		const xml = `<li tabindex="0" class="group has-icon" style="--bg: ${color_h}">` +
+							`<svg class="icon" width="16" height="16"><use xlink:href="#avatar"/></svg>` +
 							`<span class="group-name" onclick="App.Sidebar.HandleGroupNameClick(event);" contenteditable="false">${name}</span><small class="group-id">#${random_id}</small>` +
 							`<a class="button" onclick="App.Dialogs.ShowActorDialog(this.parentElement)">` +
 							`<svg width="12" height="12"><use xlink:href="#cog"/></svg></a>` +
