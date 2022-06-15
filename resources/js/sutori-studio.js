@@ -837,8 +837,9 @@ class MomentFlow {
 				</div>
 				<div class="moment-body" contenteditable="true" onblur="App.Moments.HandleMomentTextBlur(this)">${text}</div>
 				<div class="moment-footer"><div class="moment-buttons"></div></div>
+				<div class="moment-options"></div>
 			</div>
-			<div class="moment-options"></div>
+			
 			<div class="moment-media"></div>
 		</div>`;
         // option-template: <div class="moment-option" contenteditable="true">Option 1</div>
@@ -1127,6 +1128,7 @@ class SidebarFlow {
 class SutoriBuilderApp {
     constructor(webMode) {
         this._culture = SutoriCulture.None;
+        this._splitting = false;
         if (typeof globalThis.App !== 'undefined')
             throw new Error("Tried to create more than one instance of SutoriApp");
         this.WebMode = webMode;
@@ -1160,6 +1162,10 @@ class SutoriBuilderApp {
             app.AttachEvent('li[action="help-website"]', 'click', app.GotoHelpWebsite);
             document.addEventListener('keydown', app.HandleKeyDown);
             document.addEventListener('keyup', app.HandleKeyUp);
+            document.addEventListener('mousemove', app.SplitterMove);
+            //app.AttachEvent('.mid-pane .splitter', 'mousemove', app.SplitterMove);
+            app.AttachEvent('.mid-pane .splitter', 'mousedown', app.SplitterDown);
+            app.AttachEvent('.mid-pane', 'mouseup', app.SplitterUp);
             const body = document.body;
             body.addEventListener('contextmenu', app.HandleContextMenu);
             document.querySelectorAll('li[action="change-lang"]').forEach(li => {
@@ -1718,6 +1724,26 @@ class SutoriBuilderApp {
         }
         const img = this._thumbs[key];
         return img.src;
+    }
+    SplitterDown(e) {
+        App._splitting = true;
+    }
+    SplitterUp(e) {
+        App._splitting = false;
+    }
+    /**
+     * Handle the mouse moving over the splitter.
+     * @param e
+     */
+    SplitterMove(e) {
+        if (App._splitting) {
+            let newX = e.clientX;
+            if (newX < 200)
+                newX = 200;
+            if (newX > 500)
+                newX = 500;
+            document.getElementById('sidebar').style.width = newX + 'px';
+        }
     }
 }
 ;

@@ -23,11 +23,22 @@ body, p, div, span {
 }
 
 
+.splitter {
+	width: 5px;
+	background-color: var(--sidebar-bg);
+	cursor: ew-resize;
+}
+.splitter:hover {
+	background-color: var(--menu-bg-light);
+}
+
+
 .editor-pane {
 	height: 100%;
    width: 100%;
    padding: 50px;
-   overflow-y: auto;
+   overflow-y: scroll;
+	flex: 1 1;
 }
 
 

@@ -47,8 +47,9 @@ class MomentFlow {
 				</div>
 				<div class="moment-body" contenteditable="true" onblur="App.Moments.HandleMomentTextBlur(this)">${text}</div>
 				<div class="moment-footer"><div class="moment-buttons"></div></div>
+				<div class="moment-options"></div>
 			</div>
-			<div class="moment-options"></div>
+			
 			<div class="moment-media"></div>
 		</div>`;
 

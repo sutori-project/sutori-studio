@@ -3,6 +3,7 @@
 	--scrollbar-color: hsl(246, 23%, 39%);
 
 	--menu-bg: hsl(246, 26%, 21%);
+	--menu-bg-light: hsl(246, 26%, 50%);
 	--menu-highlight-bg: hsl(246, 23%, 33%);
 	--menu-shadow: hsla(246, 29%, 12%, 0.361);
 	--menu-input-bg: hsl(246, 21%, 26%);

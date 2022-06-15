@@ -28,13 +28,21 @@
 .moment {
 	background: var(--moment-bg-normal);
 	padding: 24px 12px 12px 12px;
-	min-width: 230px;
-	max-width: 70%;
+	min-width: 50%;
+	max-width: 100%;
 	border-radius: 5px;
 	position: relative;
 	margin: auto;
 	outline: 0 solid transparent;
 	transition: 1200ms outline;
+}
+
+@media (max-width:1300px) {
+	.moment { min-width: 75%; }
+}
+
+@media (max-width:920px) {
+	.moment { min-width: 100%; }
 }
 
 .moment:focus-within, .moment:focus {
@@ -160,6 +168,7 @@
 	display: flex;
 	column-gap: 10px;
 	margin-top: 10px;
+	align-items: center;
 }
 .moment-media .moment-image {
 	background: var(--moment-bg-normal);
@@ -168,7 +177,7 @@
 	border-radius: 3px;
 	outline: 0 solid transparent;
 	transition: 1200ms outline;
-    position: relative;
+	position: relative;
 }
 
 .moment-media .moment-image > svg {
@@ -198,7 +207,10 @@
 	position: absolute;
    top: 3px;
    right: 3px;
-   height: 12px;
+   height: 20px;
+   background: var(--moment-bg-normal);
+   padding: 3px;
+   border-bottom-left-radius: 3px;
 }
 
 .moment-media .moment-image:hover .buttons a svg { fill: white; }

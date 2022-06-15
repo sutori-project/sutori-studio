@@ -8,6 +8,9 @@
 
 # Neutralinojs client (minified)
 neutralino.js
+sutori-studio.js
+sutori-studio.js.map
+sutori-studio.min.js
 
 # Neutralinojs related files
 .storage

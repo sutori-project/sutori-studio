@@ -5,6 +5,7 @@ class SutoriBuilderApp {
 	private _loadedDocument?: SutoriDocument;
 	private _culture: SutoriCulture = SutoriCulture.None;
 	private _thumbs: Map<string, HTMLImageElement>;
+	private _splitting: boolean = false;
 	
 	
 	public readonly WebMode: boolean;
@@ -59,6 +60,12 @@ class SutoriBuilderApp {
 			
 			document.addEventListener('keydown', app.HandleKeyDown);
 			document.addEventListener('keyup', app.HandleKeyUp);
+
+			document.addEventListener('mousemove', app.SplitterMove);
+			//app.AttachEvent('.mid-pane .splitter', 'mousemove', app.SplitterMove);
+			app.AttachEvent('.mid-pane .splitter', 'mousedown', app.SplitterDown);
+			app.AttachEvent('.mid-pane', 'mouseup', app.SplitterUp);
+			
 
 			const body = document.body as HTMLBodyElement;
 			body.addEventListener('contextmenu', app.HandleContextMenu);
@@ -672,5 +679,29 @@ class SutoriBuilderApp {
 		}
 		const img = this._thumbs[key];
 		return img.src;
+	}
+
+
+	SplitterDown(e: MouseEvent) {
+		App._splitting = true;
+	}
+
+
+	SplitterUp(e: MouseEvent) {
+		App._splitting = false;
+	}
+
+
+	/**
+	 * Handle the mouse moving over the splitter.
+	 * @param e 
+	 */
+	SplitterMove(e: MouseEvent) {
+		if (App._splitting) {
+			let newX = e.clientX;
+			if (newX < 200) newX = 200;
+			if (newX > 500) newX = 500;
+			document.getElementById('sidebar').style.width = newX+'px';
+		}
 	}
 };
