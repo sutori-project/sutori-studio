@@ -15,7 +15,8 @@ then in a terminal under your cloned directory type 'neu run' to start the app.
 2. Restore the dependencies with: `npm install`
 2. Make sure typescript tools are installed: `npm install -g typescript`
 3. Make sure neutralino is installed: `npm install -g @neutralinojs/neu`
-4. Build & run with: `npm run build`
+4. Make sure neutralino is ready: `neu update` 
+5. Build & run with: `npm run build`
 
 ## License
 
