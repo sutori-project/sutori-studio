@@ -5,12 +5,13 @@
 /bin
 /dist
 /temp
+/node_modules
 
-# Neutralinojs client (minified)
+# Files
 neutralino.js
 sutori-studio.js
 sutori-studio.js.map
-sutori-studio.min.js
+package-lock.json
 
 # Neutralinojs related files
 .storage

@@ -22,14 +22,17 @@
 		"url": "https://github.com/kodaloid/sutori-studio/issues"
 	},
 	"scripts": {
-		"build": "tsc -p . && jsmin -o resources/js/sutori-studio.min.js resources/js/sutori-studio.js",
+		"build": "tsc && cp node_modules/sutori-js/dist/sutori.js resources/js/sutori.js && neu run",
 		"run": "neu run"
 	},
-   "files": [
+	"files": [
 		"src",
 		"dist",
 		"resources",
 		"LICENSE",
 		"README.md"
-   ]
+	],
+	"dependencies": {
+		"sutori-js": "0.0.2"
+	}
 }
