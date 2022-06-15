@@ -10,6 +10,7 @@
 - Allow the loading and saving of files with media and options. [done]
 - Added ability to load relative images, and also embed them. [done]
 - Show thumbnail for loaded images. [done]
+- Modify project to include sutori-js via NPM instead. [done]
 
 ## Still To Do:
 
@@ -20,7 +21,6 @@
 - Splash Screen.
 - Ability to publish game.
 - Comment code more.
-- Modify project to include sutori-js via NPM instead.
 
 ## Bugs
 
