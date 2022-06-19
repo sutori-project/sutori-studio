@@ -395,32 +395,31 @@ class SutoriBuilderApp {
 		doc.Moments.forEach(async(moment: SutoriMoment) => {
 			const text = moment.GetText(self._culture);
 			const momentElement = self.Moments.AddRow(text, moment.ID, moment.Actor, false);
+			const rowElement = momentElement.closest('.moment-row');
+		});
+
+		// update the moment texts to display correct text for lang.
+		for (var i=0; i<App.Document.Moments.length; i++) {
+			const moment = App.Document.Moments[i];
+			const rowElement = App.Moments.MainElement.querySelector('.moment-flow .moment-row:nth-of-type('+(i+1)+')');
+			const momentElement = rowElement.querySelector('.moment') as HTMLElement;
+			const editor = rowElement.querySelector('.moment-body') as HTMLElement;
+			editor.innerText = moment.GetText(App._culture);
 
 			// switch the options.
-			const optionsContainer = momentElement.querySelector('.moment-options');
+			const optionsContainer = rowElement.querySelector('.moment-options');
 			optionsContainer.innerHTML = '';
 			moment.GetOptions(App._culture).forEach(option => {
 				App.Moments.AddOption(momentElement, option.Text);
 			});
 
 			// switch the media.
-			const mediaContainer = momentElement.querySelector('.moment-media');
+			const mediaContainer = rowElement.querySelector('.moment-media');
 			mediaContainer.innerHTML = '';
-			moment.GetImages(App._culture).forEach(async image => {
-
-				/* -- find or gen thumb -- */
-				let src = '';
-				if (!ExtraTools.IsEmptyString(image.ResourceID)) {
-					const resource = doc.GetResourceByID(image.ResourceID) as SutoriResourceImage;
-					if (resource instanceof SutoriResourceImage) {
-						src = await App.GetThumbnailDataUri(resource.ID, resource.Src);
-					}
-				}
-				/* -- find or gen thumb -- */
-
-				App.Moments.AddImage(momentElement, src);
+			moment.GetImages(App._culture).forEach(image => {
+				App.Moments.AddImage(momentElement, '');
 			});
-		});
+		}
 
 		// add the resources.
 		doc.Resources.forEach((resource: SutoriResource) => {

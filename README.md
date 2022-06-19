@@ -19,6 +19,12 @@ To run the app, do the following:
 4. Make sure neutralino is ready: `neu update` 
 5. Build & run with: `npm run build`
 
+## Support
+
+All support is greatly appreciated!
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/U7U2YUV6)
+
 ## Contributors
 
 <a href="https://github.com/sutori-project/sutori-studio/graphs/contributors">
