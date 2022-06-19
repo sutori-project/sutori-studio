@@ -4,12 +4,13 @@ An IDE for creating beautiful interactive stories powered by [sutori-js](https:/
 
 ![alt text](https://github.com/kodaloid/sutori-studio/blob/main/screenshot.png?raw=true)
 
-This project is still in a pre-alpha state, and may not properly if you attempt to
-use it. The app is built using NeutralinoJS and Typescript. If you wish to try it,
-clone the repo, make sure [NeutralinoJS](https://neutralino.js.org/) is installed,
-then in a terminal under your cloned directory type 'neu run' to start the app.
+This project is still in an early state, and has a number of known bugs. Please
+use with caution, and remember to backup files you edit just in-case a crash
+occurs.
 
-## Building
+## Getting Started
+
+To run the app, do the following:
 
 1. Clone this repo.
 2. Restore the dependencies with: `npm install`
@@ -18,6 +19,12 @@ then in a terminal under your cloned directory type 'neu run' to start the app.
 4. Make sure neutralino is ready: `neu update` 
 5. Build & run with: `npm run build`
 
+## Contributors
+
+<a href="https://github.com/sutori-project/sutori-studio/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sutori-project/sutori-studio" />
+</a>
+
 ## License
 
-This project uses the MIT license.
+This project uses the [MIT](LICENSE) license.
