@@ -23,16 +23,24 @@ class MomentFlow {
 			App.Document.Moments.push(moment);
 		}
 		const actor_hidden = ExtraTools.IsEmptyString(actor_id) ? ' hidden' : '';
+		const actor = ExtraTools.IsEmptyString(actor_id) ? null : App.Document.Actors.find(t => t.ID == actor_id);
+		const actor_col = actor == null ? 'inherit' : actor.Attributes['color'];
 		const xml = `<div class="moment-row">
 			<div class="moment">
 				<div class="moment-header">
-					<a class="moment-avatar${actor_hidden}">
+					<a class="moment-avatar${actor_hidden}" style="background-color: ${actor_col}">
 						<svg width="16" height="16"><use xlink:href="#avatar"/></svg>
 					</a>
 					<small class="moment-id">#${random_id}</small>
 					<div class="moment-buttons">
 						<a class="moment-button" onclick="App.Dialogs.ShowMomentDialog(this);" title="Moment Properties">
 							<svg width="16" height="16"><use xlink:href="#cog"/></svg>
+						</a>
+						<a class="moment-button" onclick="alert('move up');" title="Move Up">
+							<svg width="16" height="16"><use xlink:href="#arrow-up"/></svg>
+						</a>
+						<a class="moment-button" onclick="alert('move down');" title="Move Down">
+							<svg width="16" height="16"><use xlink:href="#arrow-down"/></svg>
 						</a>
 						<a class="moment-button" onclick="App.Moments.HandleAddImage(this);" title="Add Image">
 							<svg width="16" height="16"><use xlink:href="#image"/></svg>
@@ -89,7 +97,7 @@ class MomentFlow {
 	}
 
 
-	public AddImage(momentElement: HTMLElement, src?: string) {
+	public async AddImage(momentElement: HTMLElement, image?: SutoriElementImage, src?: string) {
 		const mediaElement = momentElement.parentElement.querySelector('.moment-media');
 		if (typeof src == 'undefined') src = '';
 		mediaElement.innerHTML +=
@@ -101,6 +109,20 @@ class MomentFlow {
 				`<img src="${src}" />` +
 				`<svg width="24" height="24"><use xlink:href="#image"/></svg>` +
 			`</div>`;
+
+		const imageElement = mediaElement.querySelector('.moment-image:last-of-type');
+
+		if (image !== null) {
+			// -- update the thumbnail --
+			if (!ExtraTools.IsEmptyString(image.ResourceID)) {
+				const resource = App.Document.GetResourceByID(image.ResourceID) as SutoriResourceImage;
+				if (resource instanceof SutoriResourceImage) {
+					src = await App.GetThumbnailDataUri(resource.ID, resource.Src);
+				}
+			}
+			imageElement.querySelector('img').src = src;
+			// -- update the thumbnail --
+		}
 	}
 
 

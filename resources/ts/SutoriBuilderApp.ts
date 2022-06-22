@@ -96,7 +96,7 @@ class SutoriBuilderApp {
 	 * Catch when a language change menuitem is clicked.
 	 * @param e 
 	 */
-	private HandleChangeLang(e: MouseEvent) {
+	private async HandleChangeLang(e: MouseEvent) {
 		const li = e.target as HTMLElement;
 		const lang = li.dataset['lang'] as SutoriCulture;
 		App._culture = SutoriCulture[lang];
@@ -129,8 +129,8 @@ class SutoriBuilderApp {
 			// switch the media.
 			const mediaContainer = rowElement.querySelector('.moment-media');
 			mediaContainer.innerHTML = '';
-			moment.GetImages(App._culture).forEach(image => {
-				App.Moments.AddImage(momentElement, '');
+			moment.GetImages(App._culture).forEach(async image => {
+				App.Moments.AddImage(momentElement, image, '');
 			});
 		}
 	}
@@ -416,8 +416,8 @@ class SutoriBuilderApp {
 			// switch the media.
 			const mediaContainer = rowElement.querySelector('.moment-media');
 			mediaContainer.innerHTML = '';
-			moment.GetImages(App._culture).forEach(image => {
-				App.Moments.AddImage(momentElement, '');
+			moment.GetImages(App._culture).forEach(async image => {
+				await App.Moments.AddImage(momentElement, image, '');
 			});
 		}
 

@@ -233,6 +233,16 @@ class DialogFlow {
 			if (actor.ID == "") actor.ID = null;
 			actorElement.querySelector('.group-name').textContent = actor.Name;
 			actorElement.querySelector('.group-id').textContent = '#' + actor.ID;
+
+			let row = 1;
+			App.Document.Moments.forEach(moment => {
+				if (moment.Actor == actor.ID) {
+					const momentRowElement = App.Moments.MainElement.querySelector('.moment-row:nth-of-type('+row+')');
+					const avatarElement = momentRowElement.querySelector('.moment-avatar');
+					avatarElement.setAttribute('style', 'background-color: ' + chosen_color);
+				}
+				row++;
+			});
 			
 			this.Close();
 		};
@@ -438,11 +448,16 @@ class DialogFlow {
 			// cast back to null if empty strings are passed.
 			if (moment.Actor === '') moment.Actor = null;
 
+			const actor = ExtraTools.IsEmptyString(moment.Actor) ? null : App.Document.Actors.find(t => t.ID == moment.Actor);
+			const actor_col = actor == null ? 'inherit' : actor.Attributes['color'];
+			const avatarElement = momentRowElement.querySelector('.moment-avatar');
+			avatarElement.setAttribute('style', 'background-color: ' + actor_col);
+
 			if (ExtraTools.IsEmptyString(moment.Actor)) {
-				momentRowElement.querySelector('.moment-avatar').classList.add('hidden');
+				avatarElement.classList.add('hidden');
 			}
 			else {
-				momentRowElement.querySelector('.moment-avatar').classList.remove('hidden');
+				avatarElement.classList.remove('hidden');
 			}
 
 			// replace the triggers.
