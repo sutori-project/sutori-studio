@@ -46,8 +46,9 @@
 }
 
 .moment:focus-within, .moment:focus {
-	outline: 5px solid var(--moment-bg-light-focus);
+	outline: 5px solid var(--moment-bg-light-focus-border);
 	transition: 100ms outline;
+	background: var(--moment-bg-light-focus)!important;
 }
 
 .moment-add-button {
@@ -157,7 +158,7 @@
 }
 
 .moment-body:focus {
-	background: #ffffff38;
+	/* background: #ffffff38; */
 	outline: 0;
 }
 
@@ -198,7 +199,7 @@
 .moment-media .moment-image .buttons { display:none; }
 
 .moment-media .moment-image:focus {
-	outline: 5px solid var(--moment-bg-light-focus);
+	outline: 5px solid var(--moment-bg-light-focus-border);
 	transition: 100ms outline;
 }
 
@@ -233,12 +234,16 @@
 }
 
 .moment-options .moment-option {
-	background-color: #999;
+	background-color: hsl(168deg 51% 41%);
 	padding: 5px 10px;
 	min-width: 230px;
 	outline: 0 solid transparent;
 	transition: 1200ms outline;
 	display: flex;
+}
+.moment:focus .moment-options .moment-option,
+.moment:focus-within .moment-options .moment-option {
+	background-color: hsl(168deg 51% 72%)!important;
 }
 .moment-options .moment-option:first-of-type { border-radius: 3px 3px 0 0; }
 .moment-options .moment-option:last-of-type { border-bottom-left-radius: 3px; border-bottom-right-radius: 3px; }
@@ -257,9 +262,10 @@
 .moment-options .moment-option .buttons a svg { fill: white; }
 .moment-options .moment-option .buttons a:hover { opacity: 0.6; cursor: pointer; }
 
-.moment-options .moment-option:focus-within {
+.moment:focus .moment-options .moment-option:focus-within,
+.moment:focus-within .moment-options .moment-option:focus-within {
 	/* outline: 5px solid var(--moment-bg-light-focus); */
-	background-color: #bbb;
+	background-color: #ffffff85!important;
 	transition: 100ms background-color;
 }
 .moment-options .moment-option:focus-within div[contenteditable] { outline:0; }

@@ -36,10 +36,10 @@ class MomentFlow {
 						<a class="moment-button" onclick="App.Dialogs.ShowMomentDialog(this);" title="Moment Properties">
 							<svg width="16" height="16"><use xlink:href="#cog"/></svg>
 						</a>
-						<a class="moment-button" onclick="alert('move up');" title="Move Up">
+						<a class="moment-button" onclick="App.Moments.MoveRow(this, -1);" title="Move Up">
 							<svg width="16" height="16"><use xlink:href="#arrow-up"/></svg>
 						</a>
-						<a class="moment-button" onclick="alert('move down');" title="Move Down">
+						<a class="moment-button" onclick="App.Moments.MoveRow(this, 1);" title="Move Down">
 							<svg width="16" height="16"><use xlink:href="#arrow-down"/></svg>
 						</a>
 						<a class="moment-button" onclick="App.Moments.HandleAddImage(this);" title="Add Image">
@@ -77,6 +77,35 @@ class MomentFlow {
 		}
 
 		return this.MainElement.querySelector('.moment-row:last-of-type');
+	}
+
+
+	/**
+	 * 
+	 * @param button 
+	 * @param offset 
+	 * @returns 
+	 */
+	public MoveRow(button: HTMLElement, offset: number) {
+		var self = this;
+		var rowElement = button.closest('.moment-row');
+		var rowIndex = Array.prototype.indexOf.call(self.MainElement.childNodes, rowElement);
+
+		var arr = App.Document.Moments;
+		var element = arr[rowIndex];
+		var nextIndex = rowIndex + offset;
+		var maxIndex = arr.length - 1;
+
+		// don't move if we are at the beginning or end.
+		if (nextIndex < 0 || nextIndex > maxIndex) return;
+
+		// move the moment.
+		arr.splice(rowIndex, 1);
+		arr.splice(rowIndex + offset, 0, element);
+
+		// move the element.
+		if (offset == -1) rowElement.parentNode.insertBefore(rowElement, rowElement.previousSibling);
+		if (offset == 1) rowElement.parentNode.insertBefore(rowElement.nextSibling, rowElement);
 	}
 
 

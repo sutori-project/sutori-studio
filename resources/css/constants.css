@@ -15,7 +15,8 @@
 	--moment-bg-normal: hsl(var(--moment-bg), 36%);
 	--moment-bg-dark: hsl(var(--moment-bg), 26%);
 	--moment-bg-light: hsl(var(--moment-bg), 46%);
-	--moment-bg-light-focus: hsla(var(--moment-bg), 46%, .4);
+	--moment-bg-light-focus-border: hsla(var(--moment-bg), 46%, .4);
+	--moment-bg-light-focus: hsl(168deg 38% 70%);
 
 	--status-bg: hsl(240, 29%, 10%);
 }
