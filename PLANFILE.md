@@ -11,10 +11,12 @@
 - Added ability to load relative images, and also embed them. [done]
 - Show thumbnail for loaded images. [done]
 - Modify project to include sutori-js via NPM instead. [done]
+- Add ability to show assigned colours for actors. [done]
 
 ## Still To Do:
 
-- Add ability to show assigned colours for actors.
+- Add popup window to show preview of game.
+- Add ability to specify location of images on moments (x,y).
 - Add a custom properties table for actors, moments, media & options.
 - Auto-update id's when changing the id of an actor (and prompt before doing it).
 - Settings system and screen.

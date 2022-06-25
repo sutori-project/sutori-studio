@@ -33,12 +33,50 @@ body, p, div, span {
 }
 
 
-.editor-pane {
+.main-pane {
 	height: 100%;
-   width: 100%;
-   padding: 50px;
-   overflow-y: scroll;
+	width: 100%;
 	flex: 1 1;
+}
+
+
+.tabs-pane {
+	border-bottom: 1px solid hsl(240deg 29% 22%);
+	background: var(--sidebar-bg);
+}
+
+.tabs-pane a {
+	color: #84849f!important;
+	padding: 4px 15px;
+	line-height: calc(1em + 14px);
+	border-right: 1px solid hsl(240deg 29% 22%);
+	font-weight: 600;
+}
+
+
+.tabs-pane a.active {
+	background: #403e5f;
+}
+
+
+.tabs-pane a:hover {
+	color: #acacc1!important;
+	text-decoration: underline!important;
+	cursor: pointer;
+}
+
+
+.editor-pane, .stage-pane {
+	height: 100%;
+	width: 100%;
+	padding: 50px;
+	overflow-y: scroll;
+	flex: 1 1;
+}
+
+
+.editor-pane:not(.active), .stage-pane:not(.active) {
+	display: none;
 }
 
 

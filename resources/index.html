@@ -183,14 +183,27 @@
 
 			<div class="splitter"></div>
 
-			<div class="editor-pane">
-				<div id="moments" class="moment-flow"></div>
-				<div class="moment-flow">
-					<div class="moment-row" style="user-select: none;">
-						<button class="moment-add-button" onclick="App.Moments.AddRow('Untitled');">+</button>
-						<span>New Moment</span>
+			
+			<div class="main-pane">
+				<div class="tabs-pane">
+					<a class="tab-header active" onclick="App.SwitchPane(0);">Moments View</a>
+					<a class="tab-header" onclick="App.SwitchPane(1);">Stage View</a>
+				</div>
+
+				<div class="editor-pane main-pane-child active">
+					<div id="moments" class="moment-flow"></div>
+					<div class="moment-flow">
+						<div class="moment-row" style="user-select: none;">
+							<button class="moment-add-button" onclick="App.Moments.AddRow('Untitled');">+</button>
+							<span>New Moment</span>
+						</div>
 					</div>
 				</div>
+
+				<div class="stage-pane main-pane-child">
+
+				</div>
+
 			</div>
 
 		</div>

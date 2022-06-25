@@ -33,6 +33,6 @@
 		"README.md"
 	],
 	"dependencies": {
-		"sutori-js": "0.0.2"
+		"sutori-js": "0.0.4"
 	}
 }

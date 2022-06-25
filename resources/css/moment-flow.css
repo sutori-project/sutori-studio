@@ -120,11 +120,14 @@
 
 .moment-buttons {
 	display: flex;
-	margin-left: 8px;
-	position: relative;
-	top: -2px;
-	flex-grow: 1;
-	justify-content: end;
+	margin-left: auto;
+   position: relative;
+   top: -2px;
+   flex: 1 1;
+   justify-content: end;
+   background: #27917c;
+   max-width: 185px;
+   border-radius: 100px;
 }
 
 .moment:not(:focus-within):not(:hover) .moment-buttons {

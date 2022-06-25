@@ -439,11 +439,7 @@ class SutoriBuilderApp {
 		console.log('save-as clicked');
 
 		// create the xml template.
-		const doc = document.implementation.createDocument(null, 'document');
-		// serialize the content into the doc.
-		self.SerializeDoc(doc);
-		// serialize the doc into pure xml.
-		const xml = ExtraTools.StringifyXml(doc);
+		const xml = self.Document.SerializeToXml();
 		let saved = false;
 
 		if (self.WebMode) {
@@ -497,122 +493,6 @@ class SutoriBuilderApp {
 			console.log("Saved!");
 			alert('Saved!');
 		}
-	}
-
-
-	/**
-	 * Serialize the loaded document into an XmlDocument.
-	 * @param doc The destination document.
-	 */
-	private SerializeDoc(doc: XMLDocument) {
-		const self = this;
-		const src = self._loadedDocument;
-		const root = doc.childNodes[0];
-		
-		// serialize includes.
-		for (var i=0; i<src.Includes.length; i++) {
-			const includeElement = root.appendChild(doc.createElement('include')) as HTMLElement;
-			includeElement.textContent = src.Includes[i].Path;
-			if (src.Includes[i].After) {
-				includeElement.setAttribute('after', 'true');
-			}
-		}
-
-		// serialize the resources.
-		const resources = root.appendChild(doc.createElement('resources')) as HTMLElement;
-		for (var i=0; i<src.Resources.length; i++) {
-			const resource = src.Resources[i];
-			if (resource instanceof SutoriResourceImage) {
-				const resourceElement = resources.appendChild(doc.createElement('image')) as HTMLElement;
-				if (!ExtraTools.IsEmptyString(resource.ID)) resourceElement.setAttribute('id', resource.ID);
-				if (!ExtraTools.IsEmptyString(resource.Name)) resourceElement.setAttribute('name', resource.Name);
-				if (!ExtraTools.IsEmptyString(resource.Src)) resourceElement.setAttribute('src', resource.Src);
-				if (resource.Preload === true) resourceElement.setAttribute('preload', 'true');
-				// apply the attributes.
-				for (const [key, value] of Object.entries(resource.Attributes)) {
-					resourceElement.setAttribute(key, value);
-				}
-			}
-		}
-
-		// serialize the actors.
-		const actors = root.appendChild(doc.createElement('actors')) as HTMLElement;
-		for (var i=0; i<src.Actors.length; i++) {
-			const actor = src.Actors[i];
-			const actorElement = actors.appendChild(doc.createElement('actor')) as HTMLElement;
-			if (!ExtraTools.IsEmptyString(actor.ID)) actorElement.setAttribute('id', actor.ID);
-			actorElement.setAttribute('name', actor.Name);
-			// apply the attributes.
-			for (const [key, value] of Object.entries(actor.Attributes)) {
-				actorElement.setAttribute(key, value);
-			}
-		}
-
-		// serialize moments.
-		const moments = root.appendChild(doc.createElement('moments')) as HTMLElement;
-		for (var i=0; i<src.Moments.length; i++) {
-			const moment = src.Moments[i];
-			const momentElement = moments.appendChild(doc.createElement('moment')) as HTMLElement;
-
-			// moment attributes.
-			if (moment.Clear === true) momentElement.setAttribute('clear', 'true');
-			if (!ExtraTools.IsEmptyString(moment.ID)) momentElement.setAttribute('id', moment.ID);
-			if (!ExtraTools.IsEmptyString(moment.Actor)) momentElement.setAttribute('actor', moment.Actor);
-			if (!ExtraTools.IsEmptyString(moment.Goto)) momentElement.setAttribute('goto', moment.Goto);
-			// apply the attributes.
-			for (const [key, value] of Object.entries(moment.Attributes)) {
-				momentElement.setAttribute(key, value);
-			}
-
-			// serialize the elements.
-			for (var j=0; j<moment.Elements.length;j++) {
-				const element = moment.Elements[j];
-
-				if (element instanceof SutoriElementText)
-				{
-					const text = element as SutoriElementText;
-					const te = momentElement.appendChild(doc.createElement('text')) as HTMLElement;
-					te.textContent = text.Text;
-					if (text.ContentCulture !== SutoriCulture.None) te.setAttribute('lang', text.ContentCulture);
-				}
-				else if (element instanceof SutoriElementOption)
-				{
-					const option = element as SutoriElementOption;
-					const oe = momentElement.appendChild(doc.createElement('option')) as HTMLElement;
-					oe.textContent = option.Text;
-					if (option.ContentCulture !== SutoriCulture.None) oe.setAttribute('lang', option.ContentCulture);
-					if (option.Solver !== SutoriSolver.None) oe.setAttribute('solver', option.Solver);
-					if (!ExtraTools.IsEmptyString(option.Target)) oe.setAttribute('target', option.Target);
-					if (!ExtraTools.IsEmptyString(option.SolverCallback)) oe.setAttribute('solver', option.SolverCallback);
-				}
-				else if (element instanceof SutoriElementImage)
-				{
-					const image = element as SutoriElementImage;
-					const ie = momentElement.appendChild(doc.createElement('image')) as HTMLElement;
-					if (image.ContentCulture !== SutoriCulture.None) ie.setAttribute('lang', image.ContentCulture);
-					if (!ExtraTools.IsEmptyString(image.ResourceID)) ie.setAttribute('resource', image.ResourceID);
-					if (!ExtraTools.IsEmptyString(image.Actor)) ie.setAttribute('actor', image.Actor);
-					if (!ExtraTools.IsEmptyString(image.For)) ie.setAttribute('for', image.For);
-				}
-				else if (element instanceof SutoriElementSet)
-				{
-					const setter = element as SutoriElementSet;
-					const se = momentElement.appendChild(doc.createElement('set')) as HTMLElement;
-					if (setter.ContentCulture !== SutoriCulture.None) se.setAttribute('lang', setter.ContentCulture);
-					if (!ExtraTools.IsEmptyString(setter.Name)) se.setAttribute('name', setter.Name);
-					se.textContent = setter.Value;
-				}
-				else if (element instanceof SutoriElementTrigger)
-				{
-					const trigger = element as SutoriElementTrigger;
-					const te = momentElement.appendChild(doc.createElement('trigger')) as HTMLElement;
-					if (trigger.ContentCulture !== SutoriCulture.None) te.setAttribute('lang', trigger.ContentCulture);
-					if (!ExtraTools.IsEmptyString(trigger.Action)) te.setAttribute('action', trigger.Action);
-					te.textContent = trigger.Body;
-				}
-			}
-		}
-
 	}
 
 
@@ -702,5 +582,26 @@ class SutoriBuilderApp {
 			if (newX > 500) newX = 500;
 			document.getElementById('sidebar').style.width = newX+'px';
 		}
+	}
+
+
+	/**
+	 * Allow user to switch between primary window panes.
+	 * @param tabHeader 
+	 * @param paneSelector 
+	 */
+	SwitchPane(tabIndex: number) {
+		const main_pane = document.querySelector('.main-pane');
+		const currentHeader = main_pane.querySelector('.tabs-pane a.active');
+		const nextHeader = main_pane.querySelectorAll('.tab-header')[tabIndex];
+
+		currentHeader.classList.remove('active');
+		nextHeader.classList.add('active');
+
+		const selectedPane = main_pane.querySelector('.main-pane-child.active');
+		const nextPane = main_pane.querySelectorAll('.main-pane-child')[tabIndex];
+
+		selectedPane.classList.remove('active');
+		nextPane.classList.add('active');
 	}
 };

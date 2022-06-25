@@ -24,6 +24,10 @@ declare class SutoriChallengeEvent {
  */
 declare class SutoriDocument {
     /**
+     * Arbitrary properties associated with this document.
+     */
+    readonly Properties: Map<string, string>;
+    /**
      * An array of actors.
      */
     readonly Resources: Array<SutoriResource>;
@@ -73,6 +77,11 @@ declare class SutoriDocument {
      * @returns Either the found resource or undefined.
      */
     GetResourceByID(id: string): SutoriResource;
+    /**
+     * Serialize the loaded document into an xml.
+     * @param doc The destination document.
+     */
+    SerializeToXml(): string;
 }
 /**
  * The base class for all moment elements.
@@ -311,6 +320,18 @@ declare class SutoriTools {
      * @param solverName
      */
     static ParseSolver(solverName: string): SutoriSolver;
+    /**
+     * Test weather a string is empty.
+     * @param text
+     * @returns
+     */
+    static IsEmptyString(text?: string): boolean;
+    /**
+     * Convert an XMLDocument instance into formatted xml text.
+     * @param xmlDoc
+     * @returns
+     */
+    static StringifyXml(xmlDoc: XMLDocument): string;
 }
 /**
  * Describes an audio moment element.
