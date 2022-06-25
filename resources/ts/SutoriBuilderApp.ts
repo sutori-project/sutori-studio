@@ -55,6 +55,7 @@ class SutoriBuilderApp {
 			app.AttachEvent('li[action="new"]', 'click', app.NewFile);
 			app.AttachEvent('li[action="open"]', 'click', app.OpenFile);
 			app.AttachEvent('li[action="save-as"]', 'click', app.SaveAsFile);
+			app.AttachEvent('li[action="properties"]', 'click', app.Dialogs.SutoriDocumentPropertiesDialog);
 			app.AttachEvent('li[action="exit"]', 'click', app.Exit);
 			app.AttachEvent('li[action="help-website"]', 'click', app.GotoHelpWebsite);
 			

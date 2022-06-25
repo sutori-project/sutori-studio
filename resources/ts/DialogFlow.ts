@@ -7,6 +7,44 @@ class DialogFlow {
 	}
 
 
+	SutoriDocumentPropertiesDialog() {
+		const doc = App.Document;
+		const title = doc.Properties.get('title') ?? "Untitled";
+		const width = doc.Properties.get('width') ?? "800";
+		const height = doc.Properties.get('height') ?? "600";
+
+		const pageHtml = `<div>
+									<div>
+										<label for="tb-title" class="form">Document Title</label>
+										<input id="tb-title" type="text" class="form" value="${title}" />  
+									</div>
+									<div>
+										<label for="tb-width" class="form">Width</label>
+										<input id="tb-width" type="number" class="form" value="${width}" />  
+									</div>
+									<div>
+										<label for="tb-height" class="form">Height</label>
+										<input id="tb-height" type="number" class="form" value="${height}" />  
+									</div>
+									<div style="text-align:right; margin-top:15px;">
+										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
+										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
+									</div>
+								</div>`;
+
+		this.OkCallback = function() {
+			const dest = document.getElementById('dialog-wrapper');
+			const dialog = dest.querySelector('dialog') as HTMLElement;
+			doc.Properties.set('title', (dialog.querySelector('#tb-title') as HTMLInputElement).value);
+			doc.Properties.set('width', (dialog.querySelector('#tb-width') as HTMLInputElement).value);
+			doc.Properties.set('height', (dialog.querySelector('#tb-height') as HTMLInputElement).value);
+			this.Close();
+		};
+
+		App.Dialogs.ShowDialog('Document Properties', 'option-dialog', pageHtml);
+	}
+
+
 	ShowOptionPropertiesDialog(buttonElement?: HTMLElement) {
 		const optionElement = buttonElement.closest('.moment-option') as HTMLElement;
 		const momentElement = optionElement.closest('.moment-row') as HTMLElement;
