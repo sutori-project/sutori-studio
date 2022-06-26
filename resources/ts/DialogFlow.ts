@@ -8,6 +8,7 @@ class DialogFlow {
 
 
 	SutoriDocumentPropertiesDialog() {
+		const self = App.Dialogs;
 		const doc = App.Document;
 		const title = doc.Properties.get('title') ?? "Untitled";
 		const width = doc.Properties.get('width') ?? "800";
@@ -32,7 +33,7 @@ class DialogFlow {
 									</div>
 								</div>`;
 
-		this.OkCallback = function() {
+								self.OkCallback = function() {
 			const dest = document.getElementById('dialog-wrapper');
 			const dialog = dest.querySelector('dialog') as HTMLElement;
 			doc.Properties.set('title', (dialog.querySelector('#tb-title') as HTMLInputElement).value);
@@ -41,7 +42,7 @@ class DialogFlow {
 			this.Close();
 		};
 
-		App.Dialogs.ShowDialog('Document Properties', 'option-dialog', pageHtml);
+		self.ShowDialog('Document Properties', 'option-dialog', pageHtml);
 	}
 
 

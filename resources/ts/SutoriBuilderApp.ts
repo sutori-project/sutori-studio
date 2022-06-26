@@ -6,7 +6,8 @@ class SutoriBuilderApp {
 	private _culture: SutoriCulture = SutoriCulture.None;
 	private _thumbs: Map<string, HTMLImageElement>;
 	private _splitting: boolean = false;
-	
+	private _currentFile?: string = '';
+
 	
 	public readonly WebMode: boolean;
 	public readonly MainElement: HTMLElement;
@@ -54,6 +55,7 @@ class SutoriBuilderApp {
 			
 			app.AttachEvent('li[action="new"]', 'click', app.NewFile);
 			app.AttachEvent('li[action="open"]', 'click', app.OpenFile);
+			app.AttachEvent('li[action="save"]', 'click', app.Save);
 			app.AttachEvent('li[action="save-as"]', 'click', app.SaveAsFile);
 			app.AttachEvent('li[action="properties"]', 'click', app.Dialogs.SutoriDocumentPropertiesDialog);
 			app.AttachEvent('li[action="exit"]', 'click', app.Exit);
@@ -338,7 +340,7 @@ class SutoriBuilderApp {
 			// @ts-ignore
 			const file = await fileHandle.getFile();
 			const contents = await file.text();
-			await self._OpenFileData(contents);
+			await self._OpenFileData(file.fullPath ,contents);
 		}
 		else {
 
@@ -354,7 +356,7 @@ class SutoriBuilderApp {
 				await App.SetCurrentFile(file);
 				// @ts-ignore
 				const data = await Neutralino.filesystem.readFile(file);
-				await self._OpenFileData(data);
+				await self._OpenFileData(file, data);
 			}
 
 		}
@@ -366,11 +368,12 @@ class SutoriBuilderApp {
 	/**
 	 * @param data 
 	 */
-	private async _OpenFileData(data: any) {
+	private async _OpenFileData(filename: string, data: any) {
 		const self = App;
 
 		// clean up the ui first.
 		await self.Reset();
+		self._currentFile = filename;
 		const doc = self._loadedDocument = new SutoriDocument();
 		doc.CustomUriLoader = async function(uri: String) {
 			// we don't want to load dependencies, so just return nothing.
@@ -432,6 +435,28 @@ class SutoriBuilderApp {
 
 
 	/**
+	 * Save the current file.
+	 */
+	public async Save() {
+		const self = App;
+
+		if (self.WebMode || SutoriTools.IsEmptyString(self._currentFile)) {
+			return await self.SaveAsFile();
+		}
+
+		// create the xml template.
+		const xml = self.Document.SerializeToXml();
+		let saved = false;
+
+		// @ts-ignore
+		await Neutralino.filesystem.writeFile(self._currentFile, xml);
+		await App.SetCurrentFile(self._currentFile);
+		console.log("Saved!");
+		alert('Saved!');
+	}
+
+
+	/**
 	 * Save a file.
 	 */
 	public async SaveAsFile() {
@@ -474,7 +499,7 @@ class SutoriBuilderApp {
 
 			// @ts-ignore
 			let file = await Neutralino.os.showSaveDialog('Save Sutori Document', {
-				title: 'new_document.xml',
+				title: 'Save Document',
 				defaultPath: 'untitled.xml',
 				filters: [
 					{name: 'Sutori XML Document', extensions: ['xml']},
@@ -503,6 +528,7 @@ class SutoriBuilderApp {
 	public async Reset() {
 		const self = this;
 		self._loadedDocument = new SutoriDocument;
+		self._currentFile = '';
 		self.Sidebar.Reset();
 		self.Moments.Reset();
 	}
