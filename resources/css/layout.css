@@ -75,6 +75,11 @@ body, p, div, span {
 }
 
 
+.stage-pane {
+	padding: 0;
+}
+
+
 .editor-pane:not(.active), .stage-pane:not(.active) {
 	display: none;
 }

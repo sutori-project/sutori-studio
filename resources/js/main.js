@@ -20,3 +20,8 @@ if (typeof Neutralino !== 'undefined') {
         Neutralino.app.exit();
     });
 }
+else {
+    document.addEventListener("DOMContentLoaded", async function() {
+        SutoriBuilderApp.init(true);
+    });
+}
