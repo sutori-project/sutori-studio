@@ -1,3 +1,12 @@
+declare class HTMLElementEx {
+    Element: HTMLElement;
+    constructor(original: HTMLElement);
+    readAttribute(attributeName: string, defaultValue?: string): string;
+    readAttributeInt(attributeName: string, defaultValue?: number): number;
+    readAttributeBool(attributeName: string, defaultValue?: boolean): boolean;
+    readAttributeCulture(attributeName: string): SutoriCulture;
+    readAttributeSolver(attributeName: string): SutoriSolver;
+}
 /**
  * The base class for all moment elements.
  */
@@ -9,6 +18,12 @@ declare class SutoriActor {
     Name: string;
     constructor();
     static Parse(actor_e: HTMLElement): SutoriActor;
+    /**
+     * Parse extra attributes when parsing an element.
+     * @param element The source element.
+     * @param exclude An array of keys to exclude.
+     */
+    protected ParseExtraAttributes(element: HTMLElement, exclude?: Array<string>): void;
 }
 /**
  * Describes information passed to client code when a challenge event occurs.
@@ -103,6 +118,7 @@ declare class SutoriEngine {
     private Cursor;
     private Document;
     HandleChallenge: CallableFunction;
+    HandleEnd: CallableFunction;
     constructor(document: SutoriDocument);
     /**
      * Goto a specific moment found in the Document by id.
@@ -176,36 +192,7 @@ declare class SutoriMoment {
      * @param text The associated text.
      * @returns The added element.
      */
-    AddText(culture: SutoriCulture, text: string): SutoriElementText;
-    /**
-     * Add an image element to this moment.
-     * @param culture The culture of the element.
-     * @param resource The associated resource id.
-     * @returns The added element.
-     */
-    AddImage(culture: SutoriCulture, resource: string): SutoriElementImage;
-    /**
-     * Add an audio element to this moment.
-     * @param culture The culture of the element.
-     * @param src The associated file src.
-     * @returns The added element.
-     */
-    AddAudio(culture: SutoriCulture, src: string): SutoriElementAudio;
-    /**
-     * Add a video element to this moment.
-     * @param culture The culture of the element.
-     * @param src The associated file src.
-     * @returns The added element.
-     */
-    AddVideo(culture: SutoriCulture, src: string): SutoriElementVideo;
-    /**
-     * Add an option element to this moment.
-     * @param culture The culture of the element.
-     * @param text The associated text.
-     * @param text The id of the moment to target when this option is selected.
-     * @returns The added element.
-     */
-    AddOption(culture: SutoriCulture, text: string, target: string): SutoriElementOption;
+    AddElement(element: SutoriElement): SutoriElement;
     /**
      * Find all loader elements.
      * @param mode The mode.
@@ -342,9 +329,13 @@ declare class SutoriElementAudio extends SutoriElement {
      */
     Actor?: string;
     /**
-     * The audio file uri.
+     * The purpose of this image. For example; avatar, background etc...
      */
-    Src: string;
+    For?: string;
+    /**
+     * The resource id for the image data.
+     */
+    ResourceID?: string;
     constructor();
     static Parse(element: HTMLElement): SutoriElementAudio;
     /**
@@ -460,8 +451,18 @@ declare class SutoriElementTrigger extends SutoriElement {
  * Describes a video moment element.
  */
 declare class SutoriElementVideo extends SutoriElement {
+    /**
+     * The associated actor id.
+     */
     Actor?: string;
-    Src: string;
+    /**
+     * The purpose of this image. For example; avatar, background etc...
+     */
+    For?: string;
+    /**
+     * The resource id for the image data.
+     */
+    ResourceID?: string;
     constructor();
     static Parse(element: HTMLElement): SutoriElementVideo;
     /**

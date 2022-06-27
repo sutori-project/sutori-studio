@@ -18,8 +18,13 @@ class MomentFlow {
 		if (createDocElement) {
 			const moment = new SutoriMoment;
 			moment.ID = random_id;
-			moment.AddText(App.SelectedCulture, text);
 			moment.Actor = actor_id;
+
+			const textEle = new SutoriElementText();
+			textEle.ContentCulture = App.SelectedCulture;
+			textEle.Text = text;
+			moment.AddElement(textEle);
+
 			App.Document.Moments.push(moment);
 		}
 		const actor_hidden = ExtraTools.IsEmptyString(actor_id) ? ' hidden' : '';
@@ -277,7 +282,10 @@ class MomentFlow {
 		}
 		// -- remove any older elements for the chosen culture.
 
-		moment.AddText(culture, editorElement.innerText);
+		const textEle = new SutoriElementText();
+		textEle.ContentCulture = culture;
+		textEle.Text = editorElement.innerText;
+		moment.AddElement(textEle);
 	}
 
 
