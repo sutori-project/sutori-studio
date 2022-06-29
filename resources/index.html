@@ -120,7 +120,7 @@
 
 	<div class="app">
 
-		<div class="main-menu">
+		<div class="main-menu" id="main-menu">
 			<ul>
 				<li class="tl-item tl-item-file" tabindex="0">
 					<span>File</span>
@@ -156,6 +156,15 @@
 						<li class="tl-child" action="change-lang" tabindex="0" data-lang="esES">Spanish (Spain)</li>
 						<!-- li class="menu-separator"><hr /></li>
 						<li action="" gesture="">Add More...</li -->
+					</ul>
+				</li>
+				<li class="tl-item" tabindex="0">
+					<span>View</span>
+					<ul>
+						<li class="tl-child" action="toggle-sidebar-ids" checked="true" gesture="F9" title="Show or hide the ids in the status bar next to includes, actors and resources.">Show IDs in Sidebar</li>
+						<li class="tl-child" action="toggle-statusbar" checked="true" gesture="F10">Show Status Bar</li>
+						<li class="menu-separator" class="menu-separator" tabindex="0"><hr /></li>
+						<li class="tl-child" action="toggle-fullscreen" gesture="F11">Full Screen</li>
 					</ul>
 				</li>
 				<li class="tl-item" tabindex="0">

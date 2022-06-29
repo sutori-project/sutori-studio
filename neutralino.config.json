@@ -16,10 +16,7 @@
 	  "app.*",
 	  "os.*",
 	  "debug.log",
-	  "window.getSize",
-	  "window.getPosition",
-	  "window.setTitle",
-	  "window.move",
+	  "window.*",
 	  "filesystem.readFile",
 	  "filesystem.readBinaryFile",
 	  "filesystem.writeFile"

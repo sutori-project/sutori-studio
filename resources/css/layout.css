@@ -37,6 +37,7 @@ body, p, div, span {
 	height: 100%;
 	width: 100%;
 	flex: 1 1;
+	max-height: calc(100vh);
 }
 
 
@@ -49,13 +50,22 @@ body, p, div, span {
 	color: #84849f!important;
 	padding: 4px 15px;
 	line-height: calc(1em + 14px);
-	border-right: 1px solid hsl(240deg 29% 22%);
+	/* border-right: 1px solid hsl(240deg 29% 22%); */
 	font-weight: 600;
+	user-select: none;
 }
 
 
 .tabs-pane a.active {
-	background: #403e5f;
+	background: var(--main-bg);
+	border-right: 1px solid hsl(240deg 29% 22%);
+	border-left: 1px solid hsl(240deg 29% 22%);
+	border-bottom: 3px solid var(--main-bg);
+	z-index: 99;
+	color: #d9d9e5!important;
+}
+.tabs-pane a:first-of-type.active {
+	border-left:none;
 }
 
 
@@ -67,7 +77,7 @@ body, p, div, span {
 
 
 .editor-pane, .stage-pane {
-	height: 100%;
+	height: calc(100% - 32px);
 	width: 100%;
 	padding: 50px;
 	overflow-y: scroll;
@@ -110,3 +120,10 @@ body, p, div, span {
    line-height: 28px;
 	padding: 0 8px;
 }
+
+
+
+
+body.hide-sidebar-ids .group-id { display: none!important; }
+body.hide-statusbar .status-bar { display: none!important; }
+body.hide-statusbar .mid-pane {max-height: calc(100vh - 32px);overflow: hidden;}

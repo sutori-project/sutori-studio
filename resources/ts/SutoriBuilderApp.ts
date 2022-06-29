@@ -53,14 +53,23 @@ class SutoriBuilderApp {
 			// attach ui events.
 			const menu = app.MainElement.querySelector('.main-menu');
 			
+			// file menu.
 			app.AttachEvent('li[action="new"]', 'click', app.NewFile);
 			app.AttachEvent('li[action="open"]', 'click', app.OpenFile);
 			app.AttachEvent('li[action="save"]', 'click', app.Save);
 			app.AttachEvent('li[action="save-as"]', 'click', app.SaveAsFile);
 			app.AttachEvent('li[action="properties"]', 'click', app.Dialogs.SutoriDocumentPropertiesDialog);
 			app.AttachEvent('li[action="exit"]', 'click', app.Exit);
+
+			// view menu
+			app.AttachEvent('li[action="toggle-sidebar-ids"]', 'click', app.ToggleSidebarIDs);
+			app.AttachEvent('li[action="toggle-statusbar"]', 'click', app.ToggleStatusbar);
+			app.AttachEvent('li[action="toggle-fullscreen"]', 'click', app.ToggleFullscreen);
+
+			// help menu
 			app.AttachEvent('li[action="help-website"]', 'click', app.GotoHelpWebsite);
 			
+			// keyboard
 			document.addEventListener('keydown', app.HandleKeyDown);
 			document.addEventListener('keyup', app.HandleKeyUp);
 
@@ -197,6 +206,18 @@ class SutoriBuilderApp {
 				}
 				break;
 			
+			case 'F9':
+				App.ToggleSidebarIDs();
+				break;
+
+			case 'F10':
+				App.ToggleStatusbar();
+				break;
+				
+			case 'F11':
+				await App.ToggleFullscreen();
+				break;
+
 			/* certain things can be deleted when they have focus */
 			case 'Delete':
 				const delTarget = e.target as HTMLElement;
@@ -223,6 +244,9 @@ class SutoriBuilderApp {
 									break;
 								case 'actors':
 									self.Document.Actors.splice(index, 1);
+									break;
+								case 'resources':
+									self.Document.Resources.splice(index, 1);
 									break;
 							}			
 							console.log("Deleted ", group, index);
@@ -631,4 +655,53 @@ class SutoriBuilderApp {
 		selectedPane.classList.remove('active');
 		nextPane.classList.add('active');
 	}
+
+
+	ToggleSidebarIDs() {
+		const body = document.body;
+		const menuItem = document.querySelector('.tl-child[action="toggle-sidebar-ids"]') as HTMLElement;
+		if (body.classList.contains('hide-sidebar-ids')) {
+			body.classList.remove('hide-sidebar-ids');
+			menuItem.setAttribute('checked', 'true');
+		}
+		else {
+			body.classList.add('hide-sidebar-ids');
+			menuItem.setAttribute('checked', 'false');
+		}
+	}
+
+
+	ToggleStatusbar() {
+		const body = document.body;
+		const menuItem = document.querySelector('.tl-child[action="toggle-statusbar"]') as HTMLElement;
+		if (body.classList.contains('hide-statusbar')) {
+			body.classList.remove('hide-statusbar');
+			menuItem.setAttribute('checked', 'true');
+		}
+		else {
+			body.classList.add('hide-statusbar');
+			menuItem.setAttribute('checked', 'false');
+		}
+	}
+
+
+	async ToggleFullscreen() {
+		console.log('toggle fullscreen');
+		const body = document.body;
+		const menuItem = document.querySelector('.tl-child[action="toggle-fullscreen"]') as HTMLElement;
+		// @ts-ignore
+		if (await Neutralino.window.isFullScreen()) {
+			body.classList.remove('is-fullscreen');
+			menuItem.setAttribute('checked', 'false');
+			// @ts-ignore
+			await Neutralino.window.exitFullScreen();
+		}
+		else {
+			body.classList.add('is-fullscreen');
+			menuItem.setAttribute('checked', 'true');
+			// @ts-ignore
+			await Neutralino.window.setFullScreen();
+		}
+	}
+
 };

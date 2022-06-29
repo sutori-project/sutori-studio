@@ -22,6 +22,7 @@ class SidebarFlow {
 						  `<svg class="icon" width="16" height="16"><use xlink:href="#file"/></svg>` +
 						  `<span class="group-name" onclick="App.Sidebar.HandleGroupNameClick(event);" contenteditable="false">${name}</span><small>&nbsp;</small>` + 
 						  `<a class="button" onclick="App.Dialogs.ShowIncludeDialog(this.parentElement)"><svg width="12" height="12"><use xlink:href="#cog"/></svg></a>` +
+						  `<a class="button" onclick="App.Sidebar.RemoveItem(this.parentElement)"><svg width="12" height="12"><use xlink:href="#close"/></svg></a>` +
 						`</li>`;
 		const parent = this.MainElement.querySelector('.groups.files');
 		parent.innerHTML += xml;
@@ -50,8 +51,8 @@ class SidebarFlow {
 		const xml = `<li tabindex="0" class="group has-icon" style="--bg: ${color_h}">` +
 							`<svg class="icon" width="16" height="16"><use xlink:href="#avatar"/></svg>` +
 							`<span class="group-name" onclick="App.Sidebar.HandleGroupNameClick(event);" contenteditable="false">${name}</span><small class="group-id">#${random_id}</small>` +
-							`<a class="button" onclick="App.Dialogs.ShowActorDialog(this.parentElement)">` +
-							`<svg width="12" height="12"><use xlink:href="#cog"/></svg></a>` +
+							`<a class="button" onclick="App.Dialogs.ShowActorDialog(this.parentElement)"><svg width="12" height="12"><use xlink:href="#cog"/></svg></a>` +
+							`<a class="button" onclick="App.Sidebar.RemoveItem(this.parentElement)"><svg width="12" height="12"><use xlink:href="#close"/></svg></a>` +
 						`</li>`;
 		const parent = this.MainElement.querySelector('.groups.actors');
 		parent.innerHTML += xml;
@@ -80,6 +81,7 @@ class SidebarFlow {
 						  `<svg class="icon" width="16" height="16"><use xlink:href="#file"/></svg>` +
 						  `<span class="group-name" onclick="App.Sidebar.HandleGroupNameClick(event);" contenteditable="false">${name}</span><small class="group-id">#${random_id}</small>` + 
 						  `<a class="button" onclick="App.Dialogs.ShowImageResourceDialog(this.parentElement);"><svg width="12" height="12"><use xlink:href="#cog"/></svg></a>` +
+						  `<a class="button" onclick="App.Sidebar.RemoveItem(this.parentElement)"><svg width="12" height="12"><use xlink:href="#close"/></svg></a>` +
 						`</li>`;;
 		const parent = this.MainElement.querySelector('.groups.resources');
 		parent.innerHTML += xml;
@@ -109,6 +111,41 @@ class SidebarFlow {
 			document.dispatchEvent(event);
 		}
 	}
+
+
+	public async RemoveItem(row) {
+		const group = row.parentElement.dataset['group'];
+		const index = ExtraTools.GetElementIndex(row);
+		const message = "Are you sure you wish to delete this?";
+		let button = '';
+					
+		if (App.WebMode == true) {
+			button = confirm(message) ? 'OK' : 'CANCEL';
+		}
+		else {
+			// @ts-ignore
+			button = await Neutralino.os.showMessageBox('Confirm', message, 'OK_CANCEL', 'QUESTION');
+		}
+		
+		if (button == 'OK') {
+			if (index > -1) {
+				switch (group) {
+					case 'includes':
+						App.Document.Includes.splice(index, 1);
+						break;
+					case 'actors':
+						App.Document.Actors.splice(index, 1);
+						break;
+					case 'resources':
+						App.Document.Resources.splice(index, 1);
+						break;
+				}			
+				console.log("Deleted ", group, index);
+				row.remove();
+			}
+		}
+	}
+
 
 
 	/**
