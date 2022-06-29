@@ -3,10 +3,9 @@
 <head>
    <meta charset="UTF-8">
    <title>Sutori Studio</title>
-	<script src="js/neutralino.js"></script>
    <script src="js/sutori.js"></script>
 	<script src="js/sutori-studio.js"></script>
-   <script src="js/main.js"></script>
+   <script src="js/main-web.js"></script>
 </head>
 <body>
 
@@ -128,7 +127,7 @@
 						<li class="tl-child" action="new" tabindex="0" gesture="Ctrl+N">New</li>
 						<li class="tl-child" action="open" tabindex="0" gesture="Ctrl+O">Open File...</li>
 						<li class="menu-separator"><hr /></li>
-						<li class="tl-child" action="save" gesture="Ctrl+S">Save</li>
+						<li class="tl-child" action="save" gesture="Ctrl+S" disabled>Save</li>
 						<li class="tl-child" action="save-as" tabindex="0" gesture="Ctrl+Alt+S">Save As...</li>
 						<li class="menu-separator"><hr /></li>
 						<li class="tl-child" action="properties" tabindex="0">Document Properties</li>
@@ -164,7 +163,7 @@
 						<li class="tl-child" action="toggle-sidebar-ids" checked="true" gesture="F9" title="Show or hide the ids in the status bar next to includes, actors and resources.">Show IDs in Sidebar</li>
 						<li class="tl-child" action="toggle-statusbar" checked="true" gesture="F10">Show Status Bar</li>
 						<li class="menu-separator" class="menu-separator" tabindex="0"><hr /></li>
-						<li class="tl-child" action="toggle-fullscreen" gesture="F11">Full Screen</li>
+						<li class="tl-child" action="toggle-fullscreen" gesture="F11" disabled>Full Screen</li>
 					</ul>
 				</li>
 				<li class="tl-item" tabindex="0">
@@ -244,6 +243,6 @@
 
 
 	<div id="dialog-wrapper"></div>
-	
+
 </body>
 </html>
