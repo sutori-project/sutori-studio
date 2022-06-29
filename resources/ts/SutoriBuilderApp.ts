@@ -141,7 +141,7 @@ class SutoriBuilderApp {
 			// switch the media.
 			const mediaContainer = rowElement.querySelector('.moment-media');
 			mediaContainer.innerHTML = '';
-			moment.GetImages(App._culture).forEach(async image => {
+			moment.GetMedia(App._culture).forEach(async image => {
 				App.Moments.AddImage(momentElement, image, '');
 			});
 		}
@@ -444,7 +444,7 @@ class SutoriBuilderApp {
 			// switch the media.
 			const mediaContainer = rowElement.querySelector('.moment-media');
 			mediaContainer.innerHTML = '';
-			moment.GetImages(App._culture).forEach(async image => {
+			moment.GetMedia(App._culture).forEach(async image => {
 				await App.Moments.AddImage(momentElement, image, '');
 			});
 		}

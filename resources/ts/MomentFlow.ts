@@ -47,7 +47,7 @@ class MomentFlow {
 						<a class="moment-button" onclick="App.Moments.MoveRow(this, 1);" title="Move Down">
 							<svg width="16" height="16"><use xlink:href="#arrow-down"/></svg>
 						</a>
-						<a class="moment-button" onclick="App.Moments.HandleAddImage(this);" title="Add Image">
+						<a class="moment-button" onclick="App.Moments.HandleAddImage(this);" title="Add Media">
 							<svg width="16" height="16"><use xlink:href="#image"/></svg>
 						</a>
 						<a class="moment-button" onclick="App.Moments.HandleAddOption(this);" title="Add Option">
@@ -131,7 +131,7 @@ class MomentFlow {
 	}
 
 
-	public async AddImage(momentElement: HTMLElement, image?: SutoriElementImage, src?: string) {
+	public async AddImage(momentElement: HTMLElement, image?: SutoriElementMedia, src?: string) {
 		const mediaElement = momentElement.parentElement.querySelector('.moment-media');
 		if (typeof src == 'undefined') src = '';
 		mediaElement.innerHTML +=
@@ -188,7 +188,7 @@ class MomentFlow {
 		if (createDocElement) {
 			const moment_index = ExtraTools.GetElementIndex(rowElement);
 			const moment = App.Document.Moments[moment_index];
-			const image = new SutoriElementImage;
+			const image = new SutoriElementMedia;
 			image.ResourceID = '';
 			image.ContentCulture = App.SelectedCulture;
 			moment.Elements.push(image);
@@ -208,7 +208,7 @@ class MomentFlow {
 		const rowIndex = ExtraTools.GetElementIndex(rowElement);
 		/* remove from the doc */
 		const moment = App.Document.Moments[rowIndex];
-		const images = moment.GetImages(App.SelectedCulture);
+		const images = moment.GetMedia(App.SelectedCulture);
 		const image = images[mediaIndex];
 		console.log("image", image);
 		const index = moment.Elements.indexOf(image);

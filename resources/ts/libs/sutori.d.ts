@@ -68,7 +68,7 @@ declare class SutoriDocument {
      * @param uri The uri location of the XML file to load.
      * @returns The loaded document.
      */
-    static LoadXml(uri: string): Promise<SutoriDocument>;
+    static LoadXmlFile(uri: string): Promise<SutoriDocument>;
     /**
      * Append moments from an XML file.
      * @param uri The uri location of the XML file to load.
@@ -230,23 +230,11 @@ declare class SutoriMoment {
      */
     GetOptions(culture?: SutoriCulture): Array<SutoriElementOption>;
     /**
-     * Get an array of image elements.
+     * Get an array of media elements.
      * @param culture The SutoriCulture, default is: SutoriCulture.None
      * @returns An array of image elements.
      */
-    GetImages(culture?: SutoriCulture): Array<SutoriElementImage>;
-    /**
-     * Get an array of audio elements.
-     * @param culture The SutoriCulture, default is: SutoriCulture.None
-     * @returns An array of audio elements.
-     */
-    GetAudio(culture?: SutoriCulture): Array<SutoriElementAudio>;
-    /**
-     * Get an array of video elements.
-     * @param culture The SutoriCulture, default is: SutoriCulture.None
-     * @returns An array of video elements.
-     */
-    GetVideos(culture?: SutoriCulture): Array<SutoriElementVideo>;
+    GetMedia(culture?: SutoriCulture): Array<SutoriElementMedia>;
     /**
      * Get an array of setter elements.
      * @param culture The SutoriCulture, default is: SutoriCulture.None
@@ -321,54 +309,6 @@ declare class SutoriTools {
     static StringifyXml(xmlDoc: XMLDocument): string;
 }
 /**
- * Describes an audio moment element.
- */
-declare class SutoriElementAudio extends SutoriElement {
-    /**
-     * The associated actor id.
-     */
-    Actor?: string;
-    /**
-     * The purpose of this image. For example; avatar, background etc...
-     */
-    For?: string;
-    /**
-     * The resource id for the image data.
-     */
-    ResourceID?: string;
-    constructor();
-    static Parse(element: HTMLElement): SutoriElementAudio;
-    /**
-     * Try to get an associated actor for this element.
-     * @param document The owner document.
-     */
-    GetAssociatedActor(document: SutoriDocument): SutoriActor;
-}
-/**
- * Describes an image moment element.
- */
-declare class SutoriElementImage extends SutoriElement {
-    /**
-     * The associated actor id.
-     */
-    Actor?: string;
-    /**
-     * The purpose of this image. For example; avatar, background etc...
-     */
-    For?: string;
-    /**
-     * The resource id for the image data.
-     */
-    ResourceID?: string;
-    constructor();
-    static Parse(element: HTMLElement): SutoriElementImage;
-    /**
-     * Try to get an associated actor for this element.
-     * @param document The owner document.
-     */
-    GetAssociatedActor(document: SutoriDocument): SutoriActor;
-}
-/**
  * Describes a load moment element that loads further moments.
  */
 declare class SutoriElementLoad extends SutoriElement {
@@ -382,6 +322,21 @@ declare class SutoriElementLoad extends SutoriElement {
     Loaded: boolean;
     constructor();
     static Parse(element: HTMLElement): SutoriElementLoad;
+}
+/**
+ * Describes an image moment element.
+ */
+declare class SutoriElementMedia extends SutoriElement {
+    /**
+     * The purpose of this image. For example; avatar, background etc...
+     */
+    For?: string;
+    /**
+     * The resource id for the image data.
+     */
+    ResourceID?: string;
+    constructor();
+    static Parse(element: HTMLElement): SutoriElementMedia;
 }
 /**
  * Describes an option moment element.
@@ -446,30 +401,6 @@ declare class SutoriElementTrigger extends SutoriElement {
     Action?: string;
     constructor();
     static Parse(element: HTMLElement): SutoriElementTrigger;
-}
-/**
- * Describes a video moment element.
- */
-declare class SutoriElementVideo extends SutoriElement {
-    /**
-     * The associated actor id.
-     */
-    Actor?: string;
-    /**
-     * The purpose of this image. For example; avatar, background etc...
-     */
-    For?: string;
-    /**
-     * The resource id for the image data.
-     */
-    ResourceID?: string;
-    constructor();
-    static Parse(element: HTMLElement): SutoriElementVideo;
-    /**
-     * Try to get an associated actor for this element.
-     * @param document The owner document.
-     */
-    GetAssociatedActor(document: SutoriDocument): SutoriActor;
 }
 /**
  * Describes an image resource.

@@ -104,10 +104,10 @@ class DialogFlow {
 		const moment_index = ExtraTools.GetElementIndex(momentElement);
 		const moment = App.Document.Moments[moment_index];
 		const image_index = ExtraTools.GetElementIndex(imageElement);
-		const images = moment.GetImages(App.SelectedCulture);
+		const images = moment.GetMedia(App.SelectedCulture);
 		const image = images[image_index];
 
-		let actor_html = '', resource_html = '';
+		let resource_html = '';
 		let found_selected = false;
 
 		App.Document.Resources.forEach((res: SutoriResource) => {
@@ -116,15 +116,6 @@ class DialogFlow {
 								  (res.ID === image.ResourceID)
 								  ? ' selected' : '';
 			resource_html += `<option value="${res.ID}"${disabled+selected}>${res.Name}</option>`;
-		});
-
-		App.Document.Actors.forEach((actor: SutoriActor) => {
-			const disabled = ExtraTools.IsEmptyString(actor.ID) ? ' disabled' : '';
-			const selected = (found_selected === false) && 
-								  (ExtraTools.IsEmptyString(image.Actor) === false) && 
-								  (actor.ID === image.Actor)
-								  ? ' selected' : '';
-			actor_html += `<option value="${actor.ID}"${disabled+selected}>${actor.Name}</option>`;
 		});
 
 		const pageHtml = `<div>
@@ -139,13 +130,6 @@ class DialogFlow {
 										<label for="tb-for" class="form">For (eg: background, avatar etc...)</label>
 										<input id="tb-for" type="text" class="form" value="${image.For??''}" />  
 									</div>
-									<div>
-										<label for="sb-actor" class="form">Actor</label>
-										<select id="sb-actor" class="form">
-											<option value="">-- Inherit --</option>
-											${actor_html}
-										</select>
-									</div>
 									<div style="text-align:right; margin-top:15px;">
 										<a class="form" onclick="App.Dialogs.Ok();" style="color:#fff;">OK</a>
 										<a class="form secondary" onclick="App.Dialogs.Close();" style="color:#fff;">Cancel</a>
@@ -157,11 +141,9 @@ class DialogFlow {
 			const dialog = dest.querySelector('dialog') as HTMLElement;
 			image.ResourceID = (dialog.querySelector('#sb-rid') as HTMLInputElement).value;
 			image.For = (dialog.querySelector('#tb-for') as HTMLInputElement).value;
-			image.Actor = (dialog.querySelector('#sb-actor') as HTMLSelectElement).value;
 			// cast back to null if empty strings are passed.
 			if (image.ResourceID === '') image.ResourceID = null;
 			if (image.For === '') image.For = null;
-			if (image.Actor === '') image.Actor = null;
 
 			// -- update the thumbnail --
 			let src = '';
@@ -177,7 +159,7 @@ class DialogFlow {
 			this.Close();
 		};
 
-		this.ShowDialog('Image Properties', 'image-properties-dialog', pageHtml);
+		this.ShowDialog('Media Properties', 'image-properties-dialog', pageHtml);
 	}
 
 
